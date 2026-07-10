@@ -1,0 +1,793 @@
+# spamreaper.kv
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+#:import COLOR_ON_SURFACE_VARIANT theme.COLOR_ON_SURFACE_VARIANT
+#:import SettingsScreen settings_screen.SettingsScreen
+#:import HistoryScreen history_screen.HistoryScreen
+
+<HomeScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        md_bg_color: get_color_from_hex("#f8f9fa")
+
+        MDLabel:
+            id: status_label
+            text: "Spam Reaper Initialization..."
+            halign: "center"
+            font_name: "HankenGrotesk"
+            theme_text_color: "Custom"
+            text_color: app.theme_cls.primary_color
+
+MDScreenManager:
+    id: screen_manager
+
+    # 1. Splash Screen
+    MDScreen:
+        name: 'home'
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            md_bg_color: get_color_from_hex("#f8f9fa")
+
+            Widget:
+                size_hint_y: 1
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: "180dp"
+                spacing: "16dp"
+                padding: ["32dp", 0, "32dp", 0]
+
+                MDIconButton:
+                    icon: "shield-half-full"
+                    icon_size: "64sp"
+                    pos_hint: {"center_x": 0.5}
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: None
+
+                Label:
+                    text: "SpamReaper"
+                    font_name: "HankenGrotesk"
+                    font_size: "32sp"
+                    bold: True
+                    color: get_color_from_hex("#2e434c")
+                    halign: "center"
+                    valign: "center"
+                    size_hint_y: None
+                    height: "40dp"
+
+                Label:
+                    id: status_label
+                    text: "Loading..."
+                    font_name: "JetBrainsMono"
+                    font_size: "12sp"
+                    color: get_color_from_hex("#73787b")
+                    halign: "center"
+                    valign: "center"
+                    size_hint_y: None
+                    height: "20dp"
+
+            Widget:
+                size_hint_y: 1
+
+    #No internet screen
+    MDScreen:
+        name: 'no_internet'
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            md_bg_color: get_color_from_hex("#f8f9fa")
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: "48dp"
+                orientation: 'horizontal'
+                padding: ["8dp", 0, "8dp", 0]
+                md_bg_color: get_color_from_hex("#f8f9fa")
+
+                canvas.after:
+                    Color:
+                        rgba: get_color_from_hex("#c2c7ca")[:3] + [1]
+                    Line:
+                        points: [self.x, self.y, self.right, self.y]
+                        width: 1
+
+                MDIconButton:
+                    icon: "shield-half-full"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: None
+
+                MDLabel:
+                    text: "SpamReaper"
+                    font_name: "HankenGrotesk"
+                    font_size: "18sp"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    halign: "left"
+                    valign: "center"
+                    adaptive_width: True
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: ["32dp", 0, "32dp", 0]
+                spacing: "24dp"
+
+                Widget:
+                    size_hint_y: 1
+
+                MDIconButton:
+                    icon: "wifi-off"
+                    icon_size: "64sp"
+                    pos_hint: {"center_x": 0.5}
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: None
+
+                Label:
+                    text: "No Internet Connection"
+                    font_name: "HankenGrotesk"
+                    font_size: "22sp"
+                    bold: True
+                    color: get_color_from_hex("#191c1d")
+                    halign: "center"
+                    valign: "center"
+                    size_hint_y: None
+                    height: "32dp"
+
+                Label:
+                    text: "SpamReaper needs an internet connection\nto scan your Gmail inbox."
+                    font_name: "HankenGrotesk"
+                    font_size: "15sp"
+                    color: get_color_from_hex("#42474a")
+                    halign: "center"
+                    valign: "center"
+                    size_hint_y: None
+                    height: "48dp"
+
+                Button:
+                    text: "RETRY"
+                    font_name: "JetBrainsMono"
+                    font_size: "13sp"
+                    size_hint_y: None
+                    height: "48dp"
+                    background_normal: ""
+                    background_color: get_color_from_hex("#f8f9fa")
+                    color: get_color_from_hex("#2e434c")
+                    on_release: app.retry_connection()
+
+                    canvas.after:
+                        Color:
+                            rgba: get_color_from_hex("#2e434c")[:3] + [1]
+                        Line:
+                            rectangle: (self.x, self.y, self.width, self.height)
+                            width: 1.5
+
+                Widget:
+                    size_hint_y: 1
+    #Connect to google screen
+    MDScreen:
+        name: 'connect'
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            md_bg_color: get_color_from_hex("#f8f9fa")
+
+            # Top bar — no sync button, no nav, transactional shell only
+            MDBoxLayout:
+                size_hint_y: None
+                height: "48dp"
+                orientation: 'horizontal'
+                padding: ["8dp", 0, "8dp", 0]
+                md_bg_color: get_color_from_hex("#f8f9fa")
+
+                canvas.after:
+                    Color:
+                        rgba: get_color_from_hex("#c2c7ca")[:3] + [1]
+                    Line:
+                        points: [self.x, self.y, self.right, self.y]
+                        width: 1
+
+                MDIconButton:
+                    icon: "shield-half-full"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: None
+
+                MDLabel:
+                    text: "SpamReaper"
+                    font_name: "HankenGrotesk"
+                    font_size: "18sp"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    halign: "left"
+                    valign: "center"
+                    adaptive_width: True
+
+            # Main content — centered
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: ["32dp", 0, "32dp", 0]
+                spacing: "24dp"
+
+                Widget:
+                    size_hint_y: 1
+
+                # Shield icon
+                MDIconButton:
+                    icon: "shield-account"
+                    icon_size: "80sp"
+                    pos_hint: {"center_x": 0.5}
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: None
+
+                # Headline
+                Label:
+                    text: "Secure your Inbox"
+                    font_name: "HankenGrotesk"
+                    font_size: "28sp"
+                    bold: True
+                    color: get_color_from_hex("#191c1d")
+                    halign: "center"
+                    valign: "center"
+                    size_hint_y: None
+                    height: "40dp"
+
+                # Subtitle
+                Label:
+                    text: "Connect your Gmail account to let SpamReaper\nstart identifying junk."
+                    font_name: "HankenGrotesk"
+                    font_size: "15sp"
+                    color: get_color_from_hex("#42474a")
+                    halign: "center"
+                    valign: "center"
+                    size_hint_y: None
+                    height: "48dp"
+
+                # Connect button
+                Button:
+                    id: connect_btn
+                    text: "Connect with Google"
+                    font_name: "HankenGrotesk"
+                    font_size: "15sp"
+                    size_hint_y: None
+                    height: "48dp"
+                    background_normal: ""
+                    background_color: get_color_from_hex("#ffffff")
+                    color: get_color_from_hex("#191c1d")
+                    on_release: app.start_gmail_connect()
+
+                    canvas.after:
+                        Color:
+                            rgba: get_color_from_hex("#c2c7ca")[:3] + [1]
+                        Line:
+                            rectangle: (self.x, self.y, self.width, self.height)
+                            width: 1.5
+
+                # Status label — shows errors or "Authorizing..."
+                Label:
+                    id: connect_status_label
+                    text: ""
+                    font_name: "JetBrainsMono"
+                    font_size: "12sp"
+                    color: get_color_from_hex("#73787b")
+                    halign: "center"
+                    valign: "center"
+                    size_hint_y: None
+                    height: "32dp"
+
+                # Trust indicators row
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_y: None
+                    height: "64dp"
+                    spacing: "16dp"
+
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        spacing: "4dp"
+                        canvas.before:
+                            Color:
+                                rgba: get_color_from_hex("#c2c7ca")[:3] + [1]
+                            Line:
+                                rectangle: (self.x, self.y, self.width, self.height)
+                                width: 1
+
+                        MDIconButton:
+                            icon: "lock-outline"
+                            pos_hint: {"center_x": 0.5}
+                            theme_text_color: "Custom"
+                            text_color: app.theme_cls.primary_color
+                            on_release: None
+
+                        Label:
+                            text: "OAuth 2.0"
+                            font_name: "JetBrainsMono"
+                            font_size: "11sp"
+                            color: get_color_from_hex("#2e434c")
+                            halign: "center"
+                            valign: "center"
+
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        spacing: "4dp"
+                        canvas.before:
+                            Color:
+                                rgba: get_color_from_hex("#c2c7ca")[:3] + [1]
+                            Line:
+                                rectangle: (self.x, self.y, self.width, self.height)
+                                width: 1
+
+                        MDIconButton:
+                            icon: "shield-check"
+                            pos_hint: {"center_x": 0.5}
+                            theme_text_color: "Custom"
+                            text_color: app.theme_cls.primary_color
+                            on_release: None
+
+                        Label:
+                            text: "Read-Only Access"
+                            font_name: "JetBrainsMono"
+                            font_size: "11sp"
+                            color: get_color_from_hex("#2e434c")
+                            halign: "center"
+                            valign: "center"
+
+                # Privacy note
+                Label:
+                    text: "We only scan for spam patterns.\nYour privacy is our priority."
+                    font_name: "HankenGrotesk"
+                    font_size: "12sp"
+                    color: get_color_from_hex("#73787b")
+                    halign: "center"
+                    valign: "center"
+                    size_hint_y: None
+                    height: "40dp"
+
+                Widget:
+                    size_hint_y: 1
+
+    # 2. Main App Shell
+    MDScreen:
+        name: 'main_app'
+        on_enter: review_screen_widget.refresh_list()
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            md_bg_color: get_color_from_hex("#f8f9fa")
+
+            # --- CUSTOM TOP APP BAR ---
+            MDBoxLayout:
+                id: top_bar
+                size_hint_y: None
+                height: "48dp"
+                orientation: 'horizontal'
+                padding: ["8dp", 0, "8dp", 0]
+                spacing: "4dp"   # Adjust this to move the Title closer to the icon
+                md_bg_color: app.theme_cls.bg_normal
+                
+                # The Separator Line
+                canvas.after:
+                    Color:
+                        rgba: app.theme_cls.primary_color[:3] + [0.2] # Subtle line color
+                    Line:
+                        points: [self.x, self.y, self.right, self.y]
+                        width: 1
+
+                # Left Icon
+                MDIconButton:
+                    icon: "shield-half-full"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: None
+
+                # Title with Custom Font
+                MDLabel:
+                    text: "SpamReaper"
+                    font_name: "HankenGrotesk" # Using the font you registered
+                    font_size: "18sp"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    halign: "left"
+                    valign: "center"
+                    # This ensures the label doesn't expand and push the right icon away
+                    adaptive_width: True 
+
+                # Spacer to push the Sync button to the right
+                Widget: 
+
+                # Right Icon
+                MDIconButton:
+                    id: sync_icon_inbox
+                    icon: "sync"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: app.sync_data()
+            
+            # --- CONTENT AREA (This fills the middle) ---
+            # IMPORTANT: This must be the middle child to fill the space
+            ReviewScreen:
+                id: review_screen_widget
+                size_hint_y: 1.0
+
+            # --- CUSTOM BOTTOM NAVIGATION ---
+            MDBoxLayout:
+                id: bottom_nav_custom
+                size_hint_y: None
+                height: "64dp"
+                orientation: 'horizontal'
+                md_bg_color: app.theme_cls.bg_normal
+                
+                # The Separator Line (Corrected to be inside this wrapper)
+                canvas.before:
+                    Color:
+                        rgba: app.theme_cls.primary_color[:3] + [0.2]
+                    Line:
+                        points: [self.x, self.y + self.height, self.right, self.y + self.height]
+                        width: 1
+
+                # Tab 1: Inbox (active on this screen)
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    pos_hint: {"center_y": 0.5}
+                    MDIconButton:
+                        icon: "inbox"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: app.theme_cls.primary_color
+                        on_release: screen_manager.current = 'main_app'
+                    MDLabel:
+                        text: "Inbox"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: app.theme_cls.primary_color
+
+                # Tab 2: History (inactive on this screen)
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    pos_hint: {"center_y": 0.5}
+                    MDIconButton:
+                        icon: "history"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+                        on_release: screen_manager.current = 'history'
+                    MDLabel:
+                        text: "History"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+
+                # Tab 3: Settings (inactive on this screen)
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    pos_hint: {"center_y": 0.5}
+                    MDIconButton:
+                        icon: "cog"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+                        on_release: screen_manager.current = 'settings'
+                    MDLabel:
+                        text: "Settings"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+    
+    # 3. History Screen (placeholder for now)
+    MDScreen:
+        name: 'history'
+        on_enter: history_screen_widget.refresh_list()
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            md_bg_color: get_color_from_hex("#f8f9fa")
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: "48dp"
+                orientation: 'horizontal'
+                padding: ["8dp", 0, "8dp", 0]
+                spacing: "4dp"
+                md_bg_color: app.theme_cls.bg_normal
+
+                canvas.after:
+                    Color:
+                        rgba: app.theme_cls.primary_color[:3] + [0.2]
+                    Line:
+                        points: [self.x, self.y, self.right, self.y]
+                        width: 1
+
+                MDIconButton:
+                    icon: "shield-half-full"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: None
+
+                MDLabel:
+                    text: "SpamReaper"
+                    font_name: "HankenGrotesk"
+                    font_size: "18sp"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    halign: "left"
+                    valign: "center"
+                    adaptive_width: True
+
+                Widget:
+
+                MDIconButton:
+                    id: sync_icon_history
+                    icon: "sync"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: app.sync_data()
+
+            HistoryScreen:
+                id: history_screen_widget
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: "64dp"
+                orientation: 'horizontal'
+                md_bg_color: app.theme_cls.bg_normal
+
+                canvas.before:
+                    Color:
+                        rgba: app.theme_cls.primary_color[:3] + [0.2]
+                    Line:
+                        points: [self.x, self.y + self.height, self.right, self.y + self.height]
+                        width: 1
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    pos_hint: {"center_y": 0.5}
+                    MDIconButton:
+                        icon: "inbox"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+                        on_release: screen_manager.current = 'main_app'
+                    MDLabel:
+                        text: "Inbox"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    pos_hint: {"center_y": 0.5}
+                    MDIconButton:
+                        icon: "history"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: app.theme_cls.primary_color
+                        on_release: screen_manager.current = 'history'
+                    MDLabel:
+                        text: "History"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: app.theme_cls.primary_color
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    pos_hint: {"center_y": 0.5}
+                    MDIconButton:
+                        icon: "cog"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+                        on_release: screen_manager.current = 'settings'
+                    MDLabel:
+                        text: "Settings"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+
+    # 4. Settings Screen (placeholder for now)
+    MDScreen:
+        name: 'settings'
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            md_bg_color: get_color_from_hex("#f8f9fa")
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: "48dp"
+                orientation: 'horizontal'
+                padding: ["8dp", 0, "8dp", 0]
+                spacing: "4dp"
+                md_bg_color: app.theme_cls.bg_normal
+
+                canvas.after:
+                    Color:
+                        rgba: app.theme_cls.primary_color[:3] + [0.2]
+                    Line:
+                        points: [self.x, self.y, self.right, self.y]
+                        width: 1
+
+                MDIconButton:
+                    icon: "shield-half-full"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: None
+
+                MDLabel:
+                    text: "SpamReaper"
+                    font_name: "HankenGrotesk"
+                    font_size: "18sp"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    halign: "left"
+                    valign: "center"
+                    adaptive_width: True
+
+                Widget:
+
+                MDIconButton:
+                    id: sync_icon_settings
+                    icon: "sync"
+                    theme_text_color: "Custom"
+                    text_color: app.theme_cls.primary_color
+                    on_release: app.sync_data()
+
+            SettingsScreen:
+                id: settings_screen_widget
+
+            MDBoxLayout:
+                size_hint_y: None
+                height: "64dp"
+                orientation: 'horizontal'
+                md_bg_color: app.theme_cls.bg_normal
+
+                canvas.before:
+                    Color:
+                        rgba: app.theme_cls.primary_color[:3] + [0.2]
+                    Line:
+                        points: [self.x, self.y + self.height, self.right, self.y + self.height]
+                        width: 1
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    MDIconButton:
+                        icon: "inbox"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+                        on_release: screen_manager.current = 'main_app'
+                    MDLabel:
+                        text: "Inbox"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    MDIconButton:
+                        icon: "history"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+                        on_release: screen_manager.current = 'history'
+                    MDLabel:
+                        text: "History"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex(COLOR_ON_SURFACE_VARIANT)
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 1
+                    spacing: "2dp"
+                    padding: 0, "4dp"
+                    MDIconButton:
+                        icon: "cog"
+                        icon_size: "30sp"
+                        pos_hint: {"center_x": 0.5}
+                        theme_text_color: "Custom"
+                        text_color: app.theme_cls.primary_color
+                        on_release: screen_manager.current = 'settings'
+                    MDLabel:
+                        text: "Settings"
+                        halign: "center"
+                        size_hint_y: None
+                        height: self.texture_size[1]
+                        font_name: "JetBrainsMono"
+                        font_size: "12sp"
+                        theme_text_color: "Custom"
+                        text_color: app.theme_cls.primary_color
+
+<ReviewScreen>:
+    md_bg_color: get_color_from_hex("#f8f9fa")
+
+    RelativeLayout:
+
+        MDScrollView:
+            size_hint: 1, 1
+            pos_hint: {"x": 0, "y": 0}
+            do_scroll_x: False
+            do_scroll_y: True
+
+            MDBoxLayout:
+                id: card_list
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                padding: "16dp"
+                spacing: "16dp"
+
+        MDFloatingActionButton:
+            id: wipe_today_btn
+            icon: "delete-sweep"
+            pos_hint: {"right": 0.95, "y": 0.05}
+            md_bg_color: [0.729, 0.09, 0.118, 1]
+            theme_icon_color: "Custom"
+            icon_color: [1, 1, 1, 1]
+            on_release: root.handle_bulk_wipe()

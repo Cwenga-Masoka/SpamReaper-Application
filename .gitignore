@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Buildozer / python-for-android build artifacts
+.buildozer/
+bin/
+*.apk
+
+# Kivy logs
+.kivy/
+
+# App runtime data — should never be committed
+gmail_token.json
+spamreaper.db
+
+# OAuth credentials — never commit these
+client_secret.json
+device_client_secret.json
+client_id.json
+
+# Editor / OS clutter
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

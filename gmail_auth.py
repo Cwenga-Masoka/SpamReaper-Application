@@ -13,18 +13,27 @@ import time
 # platform lets us detect Android vs Desktop for storage paths
 import platform
 
-# The credentials file downloaded from the "TVs and Limited Input devices"
-# OAuth client in Google Cloud Console
-DEVICE_CREDENTIALS_FILE = 'device_client_secret.json'
+from urllib.parse import urlencode, urlparse, parse_qs
+
+# --- Shared OAuth endpoints ---
+AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
+TOKEN_URL = 'https://oauth2.googleapis.com/token'
+SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
+
+# --- Android (custom scheme) OAuth client ---
+ANDROID_CLIENT_ID = "333363023305-81uj8iv498rcgjakf1dc2ocu3vi5bn80.apps.googleusercontent.com"
+ANDROID_REDIRECT_URI = "com.cwengamasoka.spamreaper:/oauth2redirect"
+
+# --- Desktop (loopback) OAuth client ---
+CREDENTIALS_FILE = 'client_secret.json'
+REDIRECT_PORT = 8765
+REDIRECT_URI = f'http://127.0.0.1:{REDIRECT_PORT}'
 
 
 def open_url_natively(url):
-    """
-    Opens a URL using Android's native browser intent — purely a
-    convenience so the user doesn't have to type google.com/device
-    by hand. On Desktop, just opens the default browser.
-    """
-    if platform.system() == 'Linux':  # Kivy on Android identifies as Linux
+    """Opens a URL using Android's native browser intent, forcing it into our task."""
+    print(f"[OAuth] open_url_natively called, platform={platform.system()}")
+    if platform.system() == 'Linux':
         try:
             from jnius import autoclass
             Intent = autoclass('android.content.Intent')
@@ -36,8 +45,9 @@ def open_url_natively(url):
 
             activity = PythonActivity.mActivity
             activity.startActivity(intent)
+            print("[OAuth] Native intent startActivity() called successfully")
         except Exception as e:
-            print(f"Failed to open native intent: {e}")
+            print(f"[OAuth] Failed to open native intent: {e}")
             import webbrowser
             webbrowser.open(url)
     else:
@@ -69,35 +79,28 @@ def get_storage_path():
 
 TOKEN_FILE = f'{get_storage_path()}/gmail_token.json'
 
-# The permission scope we're asking for
-SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
 
-# Google's OAuth endpoints for the device flow
-DEVICE_CODE_URL = 'https://oauth2.googleapis.com/device/code'
-TOKEN_URL = 'https://oauth2.googleapis.com/token'
-
-
-def load_device_client_credentials():
+def load_client_credentials():
     """
-    Reads device_client_secret.json (downloaded from the "TVs and Limited
-    Input devices" OAuth client in Cloud Console) and pulls out the
-    client_id and client_secret we need to talk to Google.
+    Reads client_secret.json (the Desktop-type OAuth client) and pulls
+    out the client_id and client_secret — used only on the desktop
+    loopback path, since the Android client doesn't use a secret.
     """
-    with open(DEVICE_CREDENTIALS_FILE, 'r') as f:
+    with open(CREDENTIALS_FILE, 'r') as f:
         data = json.load(f)
-
-    # Handles both possible download shapes — nested under "installed"
-    # (like Desktop-type downloads) or flat at the top level
-    client_info = data.get('installed', data)
+    client_info = data['installed']
     return client_info['client_id'], client_info['client_secret']
 
 
 def save_token(token_data):
     """
     Saves our token information to a local JSON file so we don't
-    need to log in every time the app starts.
+    need to log in every time the app starts. Also records which
+    platform the token was obtained under, so get_access_token()
+    knows which credentials to use when refreshing later.
     """
     token_data['saved_at'] = time.time()
+    token_data['obtained_on'] = platform.system()
     try:
         with open(TOKEN_FILE, 'w') as f:
             json.dump(token_data, f)
@@ -116,100 +119,197 @@ def load_token():
         return None
 
 
-def request_device_code(client_id):
-    """
-    Asks Google for a device code — this is step one of the device flow.
-    """
-    payload = {'client_id': client_id, 'scope': SCOPE}
-    response = requests.post(DEVICE_CODE_URL, data=payload)
+# --- Android: custom-scheme flow ---
 
+def get_authorization_url_android():
+    """
+    Builds the Google OAuth URL for Android using the Android client ID
+    and custom scheme redirect URI. No local server needed — Android
+    intercepts the redirect via the intent filter.
+    """
+    params = {
+        'client_id': ANDROID_CLIENT_ID,
+        'redirect_uri': ANDROID_REDIRECT_URI,
+        'response_type': 'code',
+        'scope': SCOPE,
+        'access_type': 'offline',
+        'prompt': 'consent'
+    }
+    url = f"{AUTH_URL}?{urlencode(params)}"
+    print(f"[OAuth] Built Android auth URL: {url}")
+    return url
+
+
+def exchange_code_for_tokens_android(auth_code):
+    """
+    Exchanges the authorization code for tokens on Android.
+    No client_secret needed — Android OAuth clients are verified
+    by SHA-1 fingerprint, not a secret.
+    """
+    print(f"[OAuth] Exchanging Android auth code: {auth_code[:10]}...")
+    payload = {
+        'client_id': ANDROID_CLIENT_ID,
+        'code': auth_code,
+        'grant_type': 'authorization_code',
+        'redirect_uri': ANDROID_REDIRECT_URI,
+        'code_verifier': ''
+    }
+
+    response = requests.post(TOKEN_URL, data=payload)
     if response.status_code != 200:
-        print(f"Device code request failed: {response.status_code} {response.text}")
-
+        print(f"[OAuth] Token exchange failed: {response.status_code} {response.text}")
     response.raise_for_status()
     return response.json()
 
-def poll_for_token(client_id, client_secret, device_code, interval, expires_in):
+
+# --- Desktop: loopback server flow ---
+
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+
+class OAuthCallbackHandler(BaseHTTPRequestHandler):
     """
-    Repeatedly asks Google "has the user approved yet?" every `interval`
-    seconds, until they approve, the code expires, or they deny it.
-    This replaces the old local server — instead of waiting for an
-    incoming connection, we just make outgoing requests, which Android
-    doesn't throttle the way it throttles inbound sockets.
+    A tiny web server that does ONE job: catch the redirect Google
+    sends back after the user logs in, grab the authorization code
+    from the URL, and store it so our main code can read it.
     """
-    elapsed = 0
-    while elapsed < expires_in:
-        time.sleep(interval)
-        elapsed += interval
+    received_code = None
 
-        payload = {
-            'client_id': client_id,
-            'client_secret': client_secret,
-            'device_code': device_code,
-            'grant_type': 'urn:ietf:params:oauth:grant-type:device_code'
-        }
-        response = requests.post(TOKEN_URL, data=payload)
-        data = response.json()
+    def do_GET(self):
+        parsed_url = urlparse(self.path)
+        query_params = parse_qs(parsed_url.query)
 
-        if response.status_code == 200:
-            return data
+        if 'code' in query_params:
+            OAuthCallbackHandler.received_code = query_params['code'][0]
 
-        error = data.get('error')
-        if error == 'authorization_pending':
-            continue
-        elif error == 'slow_down':
-            interval += 5
-            continue
-        elif error == 'access_denied':
-            raise Exception("Login was denied.")
-        elif error == 'expired_token':
-            raise Exception("Login code expired — please try again.")
-        else:
-            raise Exception(f"Login failed: {error or 'unknown error'}")
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b"<html><body><h2>Login successful!</h2>"
+                          b"<p>You can close this tab and return to SpamReaper.</p>"
+                          b"</body></html>")
 
-    raise Exception("Login timed out — please try again.")
+    def log_message(self, format, *args):
+        pass
 
 
-def start_device_login_flow():
+def get_authorization_code(client_id):
     """
-    Stage 1: requests a device code from Google. Returns the full
-    response dict — the caller shows device_data['user_code'] and
-    device_data['verification_url'] to the user, then passes this
-    same dict into complete_device_login_flow() to finish up.
+    Desktop-only. Opens a browser for the user to log in, starts a tiny
+    local web server to catch Google's redirect, and returns the
+    resulting authorization code.
     """
-    client_id, client_secret = load_device_client_credentials()
-    return request_device_code(client_id)
+    params = {
+        'client_id': client_id,
+        'redirect_uri': REDIRECT_URI,
+        'response_type': 'code',
+        'scope': SCOPE,
+        'access_type': 'offline',
+        'prompt': 'consent'
+    }
+
+    full_url = f"{AUTH_URL}?{urlencode(params)}"
+
+    server = HTTPServer(('127.0.0.1', REDIRECT_PORT), OAuthCallbackHandler)
+    server.timeout = 120  # give up after 2 minutes instead of blocking forever
+    server.socket.settimeout(None)
+
+    print("[OAuth] Opening browser for Google login (Desktop)...")
+    open_url_natively(full_url)
+
+    print("[OAuth] Waiting for you to complete login in the browser...")
+    server.handle_request()
+
+    auth_code = OAuthCallbackHandler.received_code
+
+    if auth_code is None:
+        raise Exception("Login timed out or was cancelled — please try again.")
+
+    return auth_code
 
 
-def complete_device_login_flow(device_data):
+def exchange_code_for_tokens(client_id, client_secret, auth_code):
     """
-    Stage 2: polls Google until the user enters the code and approves,
-    then saves the resulting tokens.
-    """
-    client_id, client_secret = load_device_client_credentials()
-    token_data = poll_for_token(
-        client_id, client_secret,
-        device_data['device_code'],
-        device_data.get('interval', 5),
-        device_data.get('expires_in', 1800)
-    )
-    save_token(token_data)
-    print("Login completed and token saved.")
-    return token_data['access_token']
-
-
-def refresh_access_token(client_id, client_secret, refresh_token):
-    """
-    Access tokens expire after about an hour. Instead of making the
-    user log in again every hour, we use the refresh_token (which
-    lasts much longer) to silently get a brand new access_token.
+    Desktop-only. Trades the authorization code for tokens using the
+    Desktop client's secret.
     """
     payload = {
         'client_id': client_id,
         'client_secret': client_secret,
+        'code': auth_code,
+        'grant_type': 'authorization_code',
+        'redirect_uri': REDIRECT_URI
+    }
+
+    response = requests.post(TOKEN_URL, data=payload)
+    response.raise_for_status()
+    return response.json()
+
+
+# --- Unified entry points, branching by platform ---
+
+def start_login_flow():
+    """
+    Stage 1 of login.
+    - Android: opens the browser with the Android OAuth URL and returns
+      immediately — the auth code arrives later via on_new_intent.
+    - Desktop: runs the full loopback server flow, blocking until the
+      code is received, and returns it directly.
+    """
+    token_data = load_token()
+
+    if token_data is not None:
+        return None
+
+    print("No saved login found. Starting login flow...")
+
+    if platform.system() == "Linux":
+        url = get_authorization_url_android()
+        print("[OAuth] Opening browser (Android)...")
+        open_url_natively(url)
+        return "ANDROID_PENDING"
+    else:
+        client_id, client_secret = load_client_credentials()
+        auth_code = get_authorization_code(client_id)
+        return auth_code
+
+
+def finish_login_flow(auth_code):
+    """
+    Stage 2 of login.
+    - Android: exchanges the code using the Android client (no secret).
+    - Desktop: exchanges the code using the Desktop client (with secret).
+    """
+    if platform.system() == "Linux":
+        print("[OAuth] Finishing login (Android)...")
+        token_data = exchange_code_for_tokens_android(auth_code)
+    else:
+        print("[OAuth] Finishing login (Desktop)...")
+        client_id, client_secret = load_client_credentials()
+        token_data = exchange_code_for_tokens(client_id, client_secret, auth_code)
+
+    save_token(token_data)
+    print("[OAuth] Login completed and token saved.")
+    return token_data['access_token']
+
+
+def refresh_access_token(client_id, refresh_token, client_secret=None):
+    """
+    Access tokens expire after about an hour. Instead of making the
+    user log in again every hour, we use the refresh_token (which
+    lasts much longer) to silently get a brand new access_token.
+    client_secret is optional — the Android client doesn't use one,
+    and omitting the key entirely (rather than sending it as None)
+    is what Google expects in that case.
+    """
+    payload = {
+        'client_id': client_id,
         'refresh_token': refresh_token,
         'grant_type': 'refresh_token'
     }
+    if client_secret:
+        payload['client_secret'] = client_secret
+
     response = requests.post(TOKEN_URL, data=payload)
     response.raise_for_status()
     return response.json()
@@ -218,9 +318,9 @@ def refresh_access_token(client_id, client_secret, refresh_token):
 def get_access_token():
     """
     The main function other files call to get a valid access token.
-    Assumes login has already happened via the device flow above.
+    Refreshes use whichever client the token was originally obtained
+    under, recorded in the saved token file via 'obtained_on'.
     """
-    client_id, client_secret = load_device_client_credentials()
     token_data = load_token()
 
     if token_data is None:
@@ -230,11 +330,19 @@ def get_access_token():
 
     if age < (token_data['expires_in'] - 60):
         return token_data['access_token']
+
+    print("Access token expired. Refreshing...")
+
+    obtained_on = token_data.get('obtained_on', platform.system())
+
+    if obtained_on == "Linux":
+        new_token_data = refresh_access_token(ANDROID_CLIENT_ID, token_data['refresh_token'])
     else:
-        print("Access token expired. Refreshing...")
+        client_id, client_secret = load_client_credentials()
         new_token_data = refresh_access_token(
-            client_id, client_secret, token_data['refresh_token']
+            client_id, token_data['refresh_token'], client_secret
         )
-        new_token_data['refresh_token'] = token_data['refresh_token']
-        save_token(new_token_data)
-        return new_token_data['access_token']
+
+    new_token_data['refresh_token'] = token_data['refresh_token']
+    save_token(new_token_data)
+    return new_token_data['access_token']

@@ -16,19 +16,19 @@ from notifier import send_reminder_notification
 from config_manager import get_setting, save_setting
 
 def run_daily_scan(force=False):
-    import time
-    last_scan = get_setting("last_scan_at") or 0
-    hours_since_scan = (time.time() - last_scan) / 3600
-
-    if not force and hours_since_scan < 23:
-        print(f"Scan skipped — last scan was {hours_since_scan:.1f} hours ago.")
-        from kivy.clock import Clock
-        Clock.schedule_once(lambda dt: _notify_scan_complete())
-        return
-
-    print(f"Running daily scan at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
     try:
+        import time
+        last_scan = get_setting("last_scan_at") or 0
+        hours_since_scan = (time.time() - last_scan) / 3600
+
+        if not force and hours_since_scan < 23:
+            print(f"Scan skipped — last scan was {hours_since_scan:.1f} hours ago.")
+            from kivy.clock import Clock
+            Clock.schedule_once(lambda dt: _notify_scan_complete())
+            return
+
+        print(f"Running daily scan at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
         spam_emails = get_spam_emails()
 
         if not spam_emails:

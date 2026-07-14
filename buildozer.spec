@@ -63,6 +63,10 @@ android.archs = arm64-v8a, armeabi-v7a
 # Allows the app to write to external storage if needed
 android.allow_backup = True
 
+android.manifest.intent_filters = intent_filters.xml
+
+android.manifest.launch_mode = singleTask
+
 # forces Buildozer to use the latest python-for-android
 p4a.branch = v2024.01.21
 
@@ -79,7 +83,8 @@ fullscreen = 0
 icon.filename = %(source.dir)s/icon.png
 
 # Path to a presplash screen image shown while the app loads
-# presplash.filename = %(source.dir)s/presplash.png
+presplash.filename = %(source.dir)s/presplash.png
+android.presplash_color = #2e434c
 
 [buildozer]
 

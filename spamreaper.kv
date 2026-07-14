@@ -540,15 +540,6 @@ MDScreenManager:
                     valign: "center"
                     adaptive_width: True
 
-                Widget:
-
-                MDIconButton:
-                    id: sync_icon_history
-                    icon: "sync"
-                    theme_text_color: "Custom"
-                    text_color: app.theme_cls.primary_color
-                    on_release: app.sync_data()
-
             HistoryScreen:
                 id: history_screen_widget
 
@@ -672,15 +663,6 @@ MDScreenManager:
                     halign: "left"
                     valign: "center"
                     adaptive_width: True
-
-                Widget:
-
-                MDIconButton:
-                    id: sync_icon_settings
-                    icon: "sync"
-                    theme_text_color: "Custom"
-                    text_color: app.theme_cls.primary_color
-                    on_release: app.sync_data()
 
             SettingsScreen:
                 id: settings_screen_widget

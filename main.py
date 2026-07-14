@@ -13,7 +13,7 @@ from settings_screen import SettingsScreen
 from history_screen import HistoryScreen
 from tracker_db import initialize_db
 from scheduler import start_scheduler
-from gmail_auth import load_token
+from gmail_auth import start_login_flow, finish_login_flow, load_token
 
 class HomeScreen(Screen):
     """
@@ -27,19 +27,20 @@ def check_internet() -> bool:
     """Quick check for internet connectivity."""
     import socket
     try:
-        socket.setdefaulttimeout(3)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(
-            ("8.8.8.8", 53)
-        )
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
+        sock.connect(("8.8.8.8", 53))
+        sock.close()
         return True
     except Exception:
         return False
-
 class SpamReaperApp(MDApp):
     """
     Main Kivy application class.
     """
     kv_file = ''  # Disable MDApp's auto kv loading — we load manually in build()
+    pending_auth_code = None  # Holds the auth code received via Android intent
+    awaiting_login = False  # True if we're waiting for the user to complete login 
 
     def build(self):
         self.title = "SpamReaper"
@@ -77,45 +78,39 @@ class SpamReaperApp(MDApp):
             self.root.current = 'connect'
 
     def start_gmail_connect(self):
-        self.root.ids.connect_btn.text = "Requesting code..."
+        self.root.ids.connect_btn.text = "Authorizing..."
         self.root.ids.connect_btn.disabled = True
-        self.root.ids.connect_status_label.text = "Contacting Google..."
-        threading.Thread(target=self._run_device_login_flow, daemon=True).start()
+        self.root.ids.connect_status_label.text = "Opening browser for Gmail login..."
+        self.awaiting_login = True
+        threading.Thread(target=self._run_stage_one_login, daemon=True).start()
 
-    def _run_device_login_flow(self):
+    def _run_stage_one_login(self):
         try:
-            from gmail_auth import (
-                start_device_login_flow,
-                complete_device_login_flow,
-                open_url_natively,
-            )
+            auth_code = start_login_flow()
 
-            device_data = start_device_login_flow()
-            user_code = device_data['user_code']
-            verification_url = device_data.get('verification_url') or device_data.get('verification_uri')
+            if auth_code == "ANDROID_PENDING":
+                print("[OAuth] Android: browser opened, waiting for redirect intent...")
+                return
 
-            Clock.schedule_once(lambda dt: self._show_device_code(user_code, verification_url))
-
-            complete_device_login_flow(device_data)
-            Clock.schedule_once(lambda dt: self._start_scheduler_and_show_review())
+            # Desktop path — we already have the code, finish immediately
+            self._run_stage_two_login(auth_code)
 
         except Exception as e:
             error_msg = str(e)
-            print(f"Login failed: {error_msg}")
+            print(f"[OAuth] Stage 1 login failed: {error_msg}")
+            self.awaiting_login = False
             Clock.schedule_once(lambda dt: self._reset_connect_screen(error_msg))
 
-    def _show_device_code(self, user_code, verification_url):
-        self.root.ids.connect_status_label.text = (
-            f"Go to {verification_url} and enter this code:\n\n{user_code}"
-        )
-        self.root.ids.connect_btn.text = "Waiting for approval..."
-
-        # Open the browser automatically as a convenience — the user still
-        # has to type the code, but at least they don't have to type the URL
-        from gmail_auth import open_url_natively
-        if verification_url:
-            open_url_natively(verification_url)
-
+    def _run_stage_two_login(self, auth_code):
+        try:
+            finish_login_flow(auth_code)
+            print("[OAuth] Login fully completed.")
+            Clock.schedule_once(lambda dt: self._start_scheduler_and_show_review())
+        except Exception as e:
+            error_msg = str(e)
+            print(f"[OAuth] Stage 2 login failed: {error_msg}")
+            Clock.schedule_once(lambda dt: self._reset_connect_screen(error_msg))
+ 
     def _reset_connect_screen(self, error_msg=""):
         self.root.ids.connect_btn.text = "Connect with Google"
         self.root.ids.connect_btn.disabled = False
@@ -159,12 +154,22 @@ class SpamReaperApp(MDApp):
                 break
 
     def _show_inbox_loading(self, dt):
-        """Shows the scanning animation on first entry."""
+        """Shows the scanning animation on first entry — but only if the
+        initial scan genuinely hasn't finished yet. Without this check, a
+        fast scan (e.g. the 'skip, already scanned recently' path) can
+        complete before this delayed callback fires, and this would then
+        incorrectly re-lock the sync button in a permanent scanning state
+        with nothing left running to ever clear it."""
         for widget in self.root.walk():
             from review_screen import ReviewScreen
             if isinstance(widget, ReviewScreen):
-                widget._show_loading_state()
-                widget._scan_running = True
+                if widget._initial_scan_done:
+                    # The real scan already finished — just show results,
+                    # don't fake a loading state on top of it.
+                    widget.refresh_list()
+                else:
+                    widget._show_loading_state()
+                    widget._scan_running = True
                 break
 
     def sync_data(self):
@@ -179,6 +184,10 @@ class SpamReaperApp(MDApp):
         print("SpamReaper started successfully.")
         initialize_db()
         self._request_notification_permission()
+
+        if platform.system() == "Linux":
+            self._register_intent_listener()
+
         Clock.schedule_once(self.start_app_logic, 0.5)
 
     def retry_connection(self):
@@ -192,6 +201,64 @@ class SpamReaperApp(MDApp):
 
     def on_stop(self):
         print("SpamReaper closed.")
+
+    def _register_intent_listener(self):
+        """
+        Uses p4a's built-in android.activity module to listen for
+        new intents.
+        """
+        try:
+            from android import activity
+            activity.bind(on_new_intent=self._handle_android_intent)
+            print("[OAuth] Intent listener registered via android.activity")
+        except Exception as e:
+            print(f"[OAuth] Failed to register intent listener: {e}")
+
+    def _handle_android_intent(self, intent):
+        """Callback fired by android.activity when a new intent arrives."""
+        print("[OAuth] _handle_android_intent FIRED — on_new_intent received something")
+        Clock.schedule_once(lambda dt: self._handle_new_intent(intent))
+
+    def _handle_new_intent(self, intent):
+        """Handles the OAuth redirect intent on the main thread."""
+        print(f"[OAuth] _handle_new_intent called, awaiting_login={self.awaiting_login}")
+        if not self.awaiting_login:
+            print("[OAuth] Not awaiting login, ignoring this intent")
+            return
+
+        try:
+            data = intent.getData()
+            if data is None:
+                print("[OAuth] Intent had no data payload")
+                return
+
+            url = data.toString()
+            print(f"[OAuth] Intent URL received: {url}")
+
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(url)
+            params = parse_qs(parsed.query)
+
+            if 'code' not in params:
+                print(f"[OAuth] No auth code in intent URL — params were: {params}")
+                return
+
+            auth_code = params['code'][0]
+            self.awaiting_login = False
+            self.pending_auth_code = auth_code
+
+            print("[OAuth] Auth code captured. Completing login...")
+            self.root.ids.connect_status_label.text = "Completing login..."
+
+            threading.Thread(
+                target=self._run_stage_two_login,
+                args=(auth_code,),
+                daemon=True
+            ).start()
+
+        except Exception as e:
+            print(f"[OAuth] _handle_new_intent error: {e}")
+            self._reset_connect_screen(f"Login failed: {e}")
 
 
 if __name__ == "__main__":

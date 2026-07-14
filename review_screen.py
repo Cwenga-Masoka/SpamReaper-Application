@@ -113,13 +113,43 @@ class SectionHeader(MDBoxLayout):
             theme_text_color="Custom",
             text_color=urgency_color,
             size_hint_x=None,
-            on_release=self.bulk_trash_group
+            on_release=self.show_confirm_dialog
         )
 
         self.add_widget(self.title_label)
         self.add_widget(self.clear_btn)
 
-    def bulk_trash_group(self, instance):
+    def show_confirm_dialog(self, instance):
+        """Shows a confirmation dialog before trashing this group of emails."""
+        count = len(self.message_ids)
+        self._confirm_dialog = MDDialog(
+            title="Clear These Emails?",
+            text=f"This will permanently trash {count} flagged email(s) in this group. This cannot be undone from SpamReaper.",
+            buttons=[
+                MDFlatButton(
+                    text="CANCEL",
+                    theme_text_color="Custom",
+                    text_color=get_color_from_hex(COLOR_PRIMARY),
+                    on_release=self._dismiss_dialog
+                ),
+                MDFlatButton(
+                    text="CLEAR",
+                    theme_text_color="Custom",
+                    text_color=get_color_from_hex(COLOR_SECONDARY),
+                    on_release=self._confirm_bulk_trash
+                ),
+            ]
+        )
+        self._confirm_dialog.open()
+
+    def _dismiss_dialog(self, instance):
+        if self._confirm_dialog:
+            self._confirm_dialog.dismiss()
+
+    def _confirm_bulk_trash(self, instance):
+        """User confirmed — dismiss dialog and proceed with deletion."""
+        if self._confirm_dialog:
+            self._confirm_dialog.dismiss()
         threading.Thread(target=self._do_bulk_trash, daemon=True).start()
 
     def _do_bulk_trash(self):
@@ -139,7 +169,6 @@ class SectionHeader(MDBoxLayout):
         if results["failed"]:
             toast(f"{len(results['failed'])} email(s) could not be deleted")
         self.on_clear_complete()
-
 
 class EmailCard(MDCard):
     """

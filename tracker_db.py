@@ -317,3 +317,33 @@ def delete_history_record(sms_id):
 
     conn.commit()
     conn.close()
+
+def clear_action_history():
+    """
+    Permanently removes every record from action_history — used by the
+    'Clear History' button. This only clears SpamReaper's local record
+    of past actions; it does NOT touch anything in Gmail itself.
+    """
+    conn = get_connectio()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM action_history")
+    conn.commit()
+    conn.close()
+
+def delete_history_records_bulk(sms_ids):
+    """
+    Removes multiple history records at once — used after a bulk
+    restore or bulk permanent-delete action, so we're not opening
+    one database connection per email.
+    """
+    if not sms_ids:
+        return
+    conn = get_connectio()
+    cursor = conn.cursor()
+    placeholders = ",".join("?" for _ in sms_ids)
+    cursor.execute(f"""
+        DELETE FROM action_history
+        WHERE sms_id IN ({placeholders})
+    """, sms_ids)
+    conn.commit()
+    conn.close()

@@ -87,6 +87,7 @@ class SectionHeader(MDBoxLayout):
         self.padding = ["4dp", "8dp", "4dp", "4dp"]
         self.spacing = "12dp"
 
+        self._progress_dialog = None
         self.message_ids = message_ids
         self.messages = messages
         self.on_clear_complete = on_clear_complete
@@ -147,9 +148,16 @@ class SectionHeader(MDBoxLayout):
             self._confirm_dialog.dismiss()
 
     def _confirm_bulk_trash(self, instance):
-        """User confirmed — dismiss dialog and proceed with deletion."""
         if self._confirm_dialog:
             self._confirm_dialog.dismiss()
+
+        self._progress_dialog = MDDialog(
+            title=f"Deleting {len(self.message_ids)} email(s)...",
+            text="Please wait, this may take a moment.",
+            auto_dismiss=False
+        )
+        self._progress_dialog.open()
+
         threading.Thread(target=self._do_bulk_trash, daemon=True).start()
 
     def _do_bulk_trash(self):
@@ -166,6 +174,9 @@ class SectionHeader(MDBoxLayout):
         Clock.schedule_once(lambda dt: self._finish_bulk_trash(results))
 
     def _finish_bulk_trash(self, results):
+        if self._progress_dialog:
+            self._progress_dialog.dismiss()
+            self._progress_dialog = None
         if results["failed"]:
             toast(f"{len(results['failed'])} email(s) could not be deleted")
         self.on_clear_complete()
@@ -363,6 +374,7 @@ class ReviewScreen(MDBoxLayout):
         self._scan_running = False
         self._scan_error = False
         self._initial_scan_done = False
+        self._progress_dialog = None
 
     def refresh_list(self, *args):
         if not self._initial_scan_done:
@@ -569,9 +581,16 @@ class ReviewScreen(MDBoxLayout):
             self._confirm_dialog.dismiss()
 
     def _confirm_wipe(self, instance):
-        """User confirmed — dismiss dialog and proceed with deletion."""
         if self._confirm_dialog:
             self._confirm_dialog.dismiss()
+
+        self._progress_dialog = MDDialog(
+            title=f"Deleting {len(self.all_current_ids)} email(s)...",
+            text="Please wait, this may take a moment.",
+            auto_dismiss=False
+        )
+        self._progress_dialog.open()
+
         threading.Thread(target=self._do_bulk_wipe, daemon=True).start()
         
     def _do_bulk_wipe(self):
@@ -588,6 +607,9 @@ class ReviewScreen(MDBoxLayout):
         Clock.schedule_once(lambda dt: self._finish_bulk_wipe(results))
 
     def _finish_bulk_wipe(self, results):
+        if self._progress_dialog:
+            self._progress_dialog.dismiss()
+            self._progress_dialog = None
         if results["failed"]:
             toast(f"{len(results['failed'])} email(s) could not be deleted")
         self.refresh_list()

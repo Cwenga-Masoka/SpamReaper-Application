@@ -87,4 +87,19 @@ def trash_multiple_emails(email_id_list: list) -> dict:
 
     return results
 
+def untrash_multiple_emails(email_id_list: list) -> dict:
+    """
+    Restores multiple emails from Trash at once.
+    """
+    results = {
+        "succeeded": [],
+        "failed": []
+    }
+    for email_id in email_id_list:
+        if untrash_email(email_id):
+            results["succeeded"].append(email_id)
+        else:
+            results["failed"].append(email_id)
 
+    print(f"Restore complete — Succeeded: {len(results['succeeded'])}, Failed: {len(results['failed'])}")
+    return results

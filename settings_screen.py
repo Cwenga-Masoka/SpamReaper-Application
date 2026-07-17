@@ -690,48 +690,9 @@ class SettingsScreen(MDBoxLayout):
             width=lambda inst, val: setattr(inst, 'text_size', (val, None))
         )
 
-        # Divider
-        divider = MDBoxLayout(
-            size_hint_y=None,
-            height=dp(1),
-            md_bg_color=get_color_from_hex(COLOR_OUTLINE_VARIANT)
-        )
-
-        # Clear History button
-        clear_btn = Button(
-            text="CLEAR HISTORY",
-            font_name=FONT_HEADING,
-            font_size="14sp",
-            size_hint_y=None,
-            height=dp(48),
-            background_normal="",
-            background_color=get_color_from_hex("#ffdad6"),
-            color=get_color_from_hex("#ba1a1a"),
-            on_release=self._on_clear_history
-        )
-
-        clear_desc = Label(
-            text="Permanently removes all flagged email records from local storage.",
-            font_name=FONT_BODY,
-            font_size="13sp",
-            color=get_color_from_hex(COLOR_ON_SURFACE_VARIANT),
-            halign="left",
-            valign="top",
-            size_hint_y=None,
-        )
-        clear_desc.bind(
-            texture_size=lambda inst, val: setattr(inst, 'height', val[1])
-        )
-        clear_desc.bind(
-            width=lambda inst, val: setattr(inst, 'text_size', (val, None))
-        )
-
         section.add_widget(section_title)
         section.add_widget(disconnect_btn)
         section.add_widget(disconnect_desc)
-        section.add_widget(divider)
-        section.add_widget(clear_btn)
-        section.add_widget(clear_desc)
         section.bind(minimum_height=section.setter('height'))
 
         self.content.add_widget(section)

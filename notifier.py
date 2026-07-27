@@ -5,30 +5,15 @@ from plyer import notification # type: ignore
 from datetime import datetime
 
 def format_notification_message(messages: list) -> str:
-    """
-    Takes a list of message directories and builds a clean
-    human readable string that summarises what is about to be deleted
-    This becomes the body text of the notification
-    """
-
-    # Get and display the number of messages that are affectted
     header = f"{len(messages)} spam message(s) will be deleted tomorrow.\n"
-
-    # We'll then collect a preview line for each message
     preview_lines = []
-
-    # We only show a maximum of 3 previews in the notifications
     for message in messages[:3]:
-        # We build a short line showing  the sender and a snippet of the message
-        # We cap the preview at 30 characters so it fits neatly
-        line = f"From: {message['sender']}: {message['content'][:30]}..."
+        line = f"From: {message['sender']}: {message['preview'][:30]}..."
         preview_lines.append(line)
 
-    # If there are more than 3 messages, we add a line to indicate that there are more messages not shown in the preview
     if len(messages) > 3:
         preview_lines.append(f"...and {len(messages) - 3} more messages.")
 
-    # We then join the header and the preview lines into a single string to be used as the notification body
     full_message = header + "\n".join(preview_lines)
     return full_message
 

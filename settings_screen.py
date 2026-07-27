@@ -325,9 +325,21 @@ class SettingsScreen(MDBoxLayout):
             on_release=self._open_notification_settings
         )
 
+        test_notif_btn = Button(
+            text="SEND TEST NOTIFICATION",
+            font_name=FONT_MONO,
+            font_size="11sp",
+            size_hint_y=None,
+            height=dp(36),
+            background_normal="",
+            background_color=(0, 0, 0, 0),
+            color=get_color_from_hex(COLOR_OUTLINE),
+            on_release=self._send_test_notification
+        )
+
         notif_desc = Label(
-            text="If you dismissed the notification prompt, tap here to enable "
-                "deletion reminders in Android's app settings.",
+            text="If you dismissed the notification prompt, tap here to open "
+                "App Info, then tap Notifications to enable deletion reminders.",
             font_name=FONT_BODY,
             font_size="13sp",
             color=get_color_from_hex(COLOR_ON_SURFACE_VARIANT),
@@ -344,10 +356,25 @@ class SettingsScreen(MDBoxLayout):
 
         section.add_widget(section_title)
         section.add_widget(notif_btn)
+        section.add_widget(test_notif_btn)
         section.add_widget(notif_desc)
         section.bind(minimum_height=section.setter('height'))
 
         self.content.add_widget(section)
+
+    def _send_test_notification(self, instance):
+        """
+        Fires a test notification so you can confirm notifications are
+        actually working without waiting for a real email to age past
+        the deletion threshold. This also registers the notification
+        channel with Android — the 'this app doesn't send notifications'
+        message in Settings just means no notification has been posted
+        yet, not that anything is broken.
+        """
+        from notifier import send_test_notification
+        threading.Thread(target=send_test_notification, daemon=True).start()
+        from kivymd.toast import toast
+        toast("Test notification sent — check your notification shade")
 
     def _build_keywords_section(self):
         """Tag editor for spam keywords — add new ones, remove existing ones."""
@@ -589,9 +616,11 @@ class SettingsScreen(MDBoxLayout):
 
     def _open_notification_settings(self, instance):
         """
-        Opens Android's system notification settings screen for this app.
-        We can't reliably re-trigger the permission popup after a denial,
-        so this sends the user to Settings to flip it back on manually.
+        Opens Android's App Info screen for this app, where the user can
+        tap through to Notifications. We use ACTION_APPLICATION_DETAILS_SETTINGS
+        here rather than the more direct ACTION_APP_NOTIFICATION_SETTINGS,
+        since the latter isn't reliably supported across OEM Android skins —
+        App Info is the one screen every Android device supports identically.
         """
         import platform
         if platform.system() != 'Linux':
@@ -602,13 +631,15 @@ class SettingsScreen(MDBoxLayout):
 
             Intent = autoclass('android.content.Intent')
             Settings = autoclass('android.provider.Settings')
+            Uri = autoclass('android.net.Uri')
             PythonActivity = autoclass('org.kivy.android.PythonActivity')
 
             activity = PythonActivity.mActivity
             package_name = activity.getPackageName()
 
-            intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-            intent.putExtra(Settings.EXTRA_APP_PACKAGE, package_name)
+            intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            uri = Uri.fromParts("package", package_name, None)
+            intent.setData(uri)
             activity.startActivity(intent)
         except Exception as e:
             print(f"Could not open notification settings: {e}")

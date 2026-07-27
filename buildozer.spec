@@ -38,10 +38,11 @@ android.permissions = INTERNET,
                       ACCESS_NETWORK_STATE,
                       RECEIVE_BOOT_COMPLETED,
                       VIBRATE,
+                      WAKE_LOCK,
                       POST_NOTIFICATION
 
 # This tells Android this app is built for modern Android versions
-android.targetapi = 35
+android.targetapi = 34
 
 # The minimum Android version your app supports
 # API 21 = Android 5.0 (Lollipop) — covers most devices in use today

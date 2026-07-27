@@ -187,6 +187,7 @@ class SpamReaperApp(MDApp):
 
         if platform.system() == "Linux":
             self._register_intent_listener()
+            Clock.schedule_once(self._apply_system_bar_padding, 0.3)
 
         Clock.schedule_once(self.start_app_logic, 0.5)
 
@@ -260,6 +261,81 @@ class SpamReaperApp(MDApp):
             print(f"[OAuth] _handle_new_intent error: {e}")
             self._reset_connect_screen(f"Login failed: {e}")
 
+    def _get_system_bar_heights(self):
+        """
+        Returns (status_bar_height, nav_bar_height) in pixels, read directly
+        from Android via pyjnius. Works around a known python-for-android
+        issue where buildozer.spec's fullscreen=0 setting no longer reliably
+        prevents edge-to-edge rendering on newer Android versions — so we
+        manually pad the app by the real system bar sizes instead.
+        Returns (0, 0) on Desktop or if anything goes wrong.
+        """
+        if platform.system() != "Linux":
+            return 0, 0
+        try:
+            from jnius import autoclass
+
+            PythonActivity = autoclass("org.kivy.android.PythonActivity")
+            activity = PythonActivity.mActivity
+
+            status_bar_height = 0
+            nav_bar_height = 0
+
+            try:
+                WindowInsetsType = autoclass("android.view.WindowInsets$Type")
+                window = activity.getWindow()
+                decor = window.getDecorView()
+                insets = decor.getRootWindowInsets()
+                if insets:
+                    status_bar_height = insets.getInsets(WindowInsetsType.statusBars()).top
+                    nav_bar_height = insets.getInsets(WindowInsetsType.navigationBars()).bottom
+            except Exception as e:
+                print(f"[Insets] Primary inset method failed: {e}")
+
+            # Fallback for older API levels or gesture-navigation quirks
+            if not status_bar_height:
+                try:
+                    resources = activity.getResources()
+                    status_id = resources.getIdentifier("status_bar_height", "dimen", "android")
+                    status_bar_height = resources.getDimensionPixelSize(status_id)
+                except Exception as e:
+                    print(f"[Insets] Fallback status bar height failed: {e}")
+
+            if not nav_bar_height:
+                try:
+                    resources = activity.getResources()
+                    nav_id = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+                    nav_bar_height = resources.getDimensionPixelSize(nav_id)
+                except Exception as e:
+                    print(f"[Insets] Fallback nav bar height failed: {e}")
+
+            print(f"[Insets] status_bar={status_bar_height}px nav_bar={nav_bar_height}px")
+            return status_bar_height, nav_bar_height
+
+        except Exception as e:
+            print(f"[Insets] Could not read system bar heights: {e}")
+            return 0, 0
+
+    def _apply_system_bar_padding(self, dt):
+        """
+        Shrinks and repositions the ScreenManager (self.root) so its content
+        sits between the status bar and navigation bar, instead of resizing
+        a separate wrapper widget. Every screen in the app reaches back to
+        app.root directly for navigation (app.root.current), widget lookups
+        (app.root.ids), and screen traversal (app.root.walk()) — wrapping
+        root in another container breaks all of that, since Kivy's app.root
+        always refers to exactly what build() returns.
+        """
+        status_bar_height, nav_bar_height = self._get_system_bar_heights()
+        if status_bar_height == 0 and nav_bar_height == 0:
+            print("[Insets] No insets detected — skipping padding")
+            return
+
+        from kivy.core.window import Window
+        self.root.size_hint = (None, None)
+        self.root.size = (Window.width, Window.height - status_bar_height - nav_bar_height)
+        self.root.pos = (0, nav_bar_height)
+        print(f"[Insets] Applied: size={self.root.size} pos={self.root.pos}")
 
 if __name__ == "__main__":
     SpamReaperApp().run()

@@ -1,0 +1,1 @@
+export const NO_EMAILS = Object.freeze([])

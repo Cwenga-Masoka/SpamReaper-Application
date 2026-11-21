@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Sign in to SpamReaper • Clear your inbox like a sunny breeze</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              cream: '#FAF8F5',
+              surface: '#FFFFFF',
+              moss: '#46734E',
+              'moss-dark': '#385C3E',
+              'moss-light': '#EEF4EF',
+              rust: '#BA5336',
+              amber: '#E8A338',
+              'amber-soft': '#FDF6E8',
+              slate: '#2B342C',
+              muted: '#717C73',
+              border: '#E8E4DC',
+            }
+          },
+          boxShadow: {
+            'warm-soft': '0 8px 30px -8px rgba(186, 83, 54, 0.08), 0 4px 16px -4px rgba(70, 115, 78, 0.06)',
+            'floating-card': '0 16px 40px -12px rgba(43, 52, 44, 0.08), 0 2px 8px -2px rgba(43, 52, 44, 0.03)',
+            'btn-subtle': '0 2px 8px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: CustomStyles -->
+<style data-purpose="base-enhancements">
+    body {
+      background-color: #FAF8F5;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    
+    /* Smooth iOS bounce reduction and subtle transitions */
+    .tap-bounce {
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s ease;
+    }
+    .tap-bounce:active {
+      transform: scale(0.985);
+    }
+  </style>
+<!-- END: CustomStyles -->
+</head>
+<body class="min-h-full flex flex-col justify-between items-center text-brand-slate selection:bg-brand-moss/10 selection:text-brand-moss">
+<!-- BEGIN: MobileDeviceWrapper -->
+<!-- Constrained container to mirror iOS screen experience (~390px-430px) -->
+<div class="w-full max-w-[430px] min-h-screen flex flex-col justify-between px-5 pt-3 pb-8 relative overflow-hidden">
+<!-- BEGIN: TopBar -->
+<header class="w-full pt-1 pb-3 flex items-center justify-between z-10" data-purpose="top-navigation-bar">
+<!-- iOS Status Bar Space Filler / Time simulation -->
+<div class="flex items-center space-x-1.5 bg-brand-surface/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-brand-border/70 shadow-sm">
+<svg class="w-3.5 h-3.5 text-brand-moss" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" fill-rule="evenodd"></path>
+</svg>
+<span class="text-[11px] font-semibold tracking-wide uppercase text-brand-moss">Google Cloud Verified</span>
+</div>
+<!-- Quick Help / Privacy Indicator -->
+<a class="text-xs font-medium text-brand-muted hover:text-brand-moss transition-colors flex items-center gap-1 py-1 px-2.5 rounded-full hover:bg-brand-moss-light" href="#help">
+<span>Privacy First</span>
+<svg class="w-3 h-3 text-brand-moss" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+</header>
+<!-- END: TopBar -->
+<!-- BEGIN: HeroVisualSection -->
+<main class="flex-1 flex flex-col items-center justify-center my-auto w-full">
+<!-- Serene Pastoral Image Container with Soft Elevated Frame -->
+<div class="relative w-full max-w-[340px] mx-auto mb-4" data-purpose="hero-artwork">
+<!-- Ambient decorative halo glow -->
+<div class="absolute -inset-2 bg-gradient-to-tr from-brand-amber/15 via-brand-moss/10 to-transparent rounded-3xl blur-xl opacity-80 pointer-events-none"></div>
+<!-- Pastoral Landscape Image -->
+<div class="relative rounded-3xl overflow-hidden border-[2px] border-brand-border/70 shadow-warm-soft bg-brand-surface">
+<img alt="Warm minimalist vector illustration of rolling soft green grassy hills under a gentle golden warm sun in a clear sky, soft pastel tones, pastoral peaceful breeze, clean minimal aesthetic, modern tech app illustration style, white background" class="w-full h-44 object-cover object-center transform hover:scale-[1.02] transition-transform duration-700 ease-out" loading="eager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUatBqbkcRq004zVFjfX2XPoVn8fS9ctVkdEOqO7s4c6rGPlC9p2qtBTizSR0NxZWC1zu3GhGoiqgHKofSAIKe6KYYYeCLmxIxZW9NSAFbrHJxWYv9Ihzt08olgvHBCK7_we6_-UMfVfoVdR03pWpnore8wc3rkRV3cg2VNbeRyRJ1IvU_jnqBGz96dKyIG2Lqcm0eVHZviW2m2dRiYoo4v1tfeomSyccEK7Gx3AetTDIPi1qNCIrE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none"></div>
+</div>
+<!-- Float Brand Badge overlapping image bottom-center -->
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 flex items-center justify-center w-11 h-11 rounded-2xl bg-brand-surface border-2 border-brand-border/80 shadow-md">
+<!-- Stylized Leaf & Sun Motif (SpamReaper Icon) -->
+<svg class="w-6 h-6 text-brand-moss" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 2a9 9 0 0 0-9 9c0 4.97 4.03 9 9 9 1.4 0 2.73-.32 3.92-.89" stroke="#46734E"></path>
+<path d="M12 2c5 0 9 4 9 9 0 2.22-.8 4.25-2.14 5.82" stroke="#BA5336"></path>
+<path d="M12 7c2.5 0 4.5 2 4.5 4.5 0 3-4.5 7.5-4.5 7.5s-4.5-4.5-4.5-7.5C7.5 9 9.5 7 12 7z" fill="#EEF4EF" stroke="#46734E"></path>
+<circle cx="17.5" cy="5.5" fill="#E8A338" r="2.5" stroke="none"></circle>
+</svg>
+</div>
+</div>
+<!-- Brand Title & Peaceful Tagline -->
+<div class="text-center mt-3 mb-5 px-4" data-purpose="brand-titles">
+<h1 class="text-3xl font-extrabold tracking-tight text-brand-slate flex items-center justify-center gap-1.5">
+          SpamReaper
+        </h1>
+<p class="text-sm font-medium text-brand-muted mt-1 leading-snug">
+          Clear your inbox like a sunny breeze.
+        </p>
+</div>
+<!-- BEGIN: AuthCard -->
+<!-- Rounded-3xl floating white card -->
+<div class="w-full bg-brand-surface rounded-3xl p-5 border-2 border-brand-border/70 shadow-floating-card relative backdrop-blur-sm" data-purpose="authentication-card">
+<!-- Value Proposition Guarantees -->
+<div class="space-y-2 mb-5">
+<!-- Non-destructive item -->
+<div class="flex items-start gap-2.5 p-2 rounded-xl bg-brand-cream/80 border border-brand-border/50">
+<span class="text-base select-none leading-none mt-0.5">✨</span>
+<p class="text-xs font-semibold text-brand-slate leading-tight">
+              100% Non-destructive: <span class="font-normal text-brand-muted">nothing deleted without your 5-day review.</span>
+</p>
+</div>
+<!-- OAuth Security item -->
+<div class="flex items-start gap-2.5 p-2 rounded-xl bg-brand-cream/80 border border-brand-border/50">
+<svg class="w-4 h-4 text-brand-moss flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<p class="text-xs font-semibold text-brand-slate leading-tight">
+              Direct Gmail API OAuth 2.0 <span class="font-normal text-brand-muted">(We never store or see your passwords).</span>
+</p>
+</div>
+</div>
+<!-- Google OAuth Primary CTA Button -->
+<div class="space-y-3">
+<button aria-label="Sign in with Google" class="tap-bounce w-full h-14 bg-white hover:bg-slate-50 border border-brand-border/90 active:border-brand-moss/40 rounded-full flex items-center justify-center gap-3 shadow-btn-subtle transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-brand-moss/40" type="button">
+<!-- Official Standard Google Logo SVG -->
+<svg class="w-5 h-5 flex-shrink-0" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
+</svg>
+<span class="text-sm font-bold text-gray-700 group-hover:text-gray-900 tracking-tight">
+              Continue with Google
+            </span>
+</button>
+<!-- Alternative Work / Google Workspace Option -->
+<div class="text-center pt-1">
+<button class="text-xs font-semibold text-brand-moss hover:text-brand-moss-dark hover:underline underline-offset-4 transition-colors" type="button">
+              Sign in with Google Workspace (Work Email) →
+            </button>
+</div>
+</div>
+<!-- Social Proof Rating Pill -->
+<div class="mt-4 pt-3.5 border-t border-brand-border/40 flex items-center justify-center gap-1.5 text-xs text-brand-muted">
+<!-- 5 Golden Stars -->
+<div class="flex items-center text-brand-amber">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+</div>
+<span class="font-medium">
+<strong class="font-bold text-brand-slate">4.9/5</strong> by 12,000+ serene inboxes
+          </span>
+</div>
+</div>
+<!-- END: AuthCard -->
+</main>
+<!-- END: HeroVisualSection -->
+<!-- BEGIN: TrustAndLegalFooter -->
+<footer class="w-full text-center mt-3 pt-2" data-purpose="security-and-legal-footer">
+<!-- Security Badges Row -->
+<div class="flex items-center justify-center gap-4 mb-2 text-[11px] font-semibold text-brand-muted">
+<span class="inline-flex items-center gap-1">
+<svg class="w-3.5 h-3.5 text-brand-moss" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+          256-bit TLS Encrypted
+        </span>
+<span class="inline-block w-1 h-1 rounded-full bg-brand-border"></span>
+<span class="inline-flex items-center gap-1">
+<svg class="w-3.5 h-3.5 text-brand-amber" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+          Read &amp; Label Scope Only
+        </span>
+</div>
+<!-- Legal Micro-Copy -->
+<p class="text-[11px] leading-relaxed text-brand-muted/90 max-w-xs mx-auto">
+        By signing in, you agree to our 
+        <a class="underline underline-offset-2 hover:text-brand-moss" href="#terms">Terms of Service</a> &amp; 
+        <a class="underline underline-offset-2 hover:text-brand-moss" href="#privacy">Privacy Policy</a>. SpamReaper never sells personal data or alters essential correspondence.
+      </p>
+<!-- Home Indicator Bar (iOS standard spacer) -->
+<div aria-hidden="true" class="w-32 h-1 bg-brand-slate/20 rounded-full mx-auto mt-4"></div>
+</footer>
+<!-- END: TrustAndLegalFooter -->
+</div>
+<!-- END: MobileDeviceWrapper -->
+</body></html>

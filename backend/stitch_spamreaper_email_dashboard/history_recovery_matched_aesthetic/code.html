@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#FAF8F5;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "outline": "#787672", "surface-container": "#F2EFEB", "tertiary-fixed": "#FDE8E2", "surface": "#FAF8F5", "on-primary-fixed": "#1E3B24", "surface-variant": "#EAE5DF", "surface-container-lowest": "#ffffff", "surface-bright": "#FAF8F5", "on-background": "#23201D", "on-secondary-fixed": "#2B2100", "surface-container-high": "#ECE7E1", "primary-fixed": "#DCEFDF", "on-surface": "#23201D", "secondary-fixed-dim": "#E7C970", "on-secondary": "#ffffff", "inverse-surface": "#322E2B", "on-tertiary-container": "#FFFFFF", "primary-container": "#4A7A52", "on-primary-container": "#E3F2E5", "on-error": "#ffffff", "secondary": "#8A6D05", "primary-fixed-dim": "#BCE3C1", "background": "#FAF8F5", "surface-container-highest": "#E4DFD8", "on-secondary-container": "#7A5E00", "on-tertiary-fixed-variant": "#A8452D", "error": "#BA1A1A", "error-container": "#FDE8E2", "secondary-container": "#FDE89C", "primary": "#46734E", "inverse-primary": "#BCE3C1", "secondary-fixed": "#FEE6A2", "tertiary-container": "#C25438", "on-error-container": "#93000A", "on-primary-fixed-variant": "#375D3E", "on-primary": "#ffffff", "on-secondary-fixed-variant": "#6B5200", "surface-dim": "#DDD7CE", "on-tertiary": "#ffffff", "on-tertiary-fixed": "#4E1A0E", "tertiary-fixed-dim": "#F9C3B6", "surface-container-low": "#F6F3EF", "inverse-on-surface": "#F6F3EF", "on-surface-variant": "#57524C", "surface-tint": "#46734E", "tertiary": "#B8533B", "outline-variant": "#D5CFC8" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "gutter-md": "1.5rem", "space-sm": "0.5rem", "space-md": "1rem", "space-xl": "2.5rem", "margin-lg": "3rem", "gutter": "1rem", "space-xs": "0.25rem", "margin-md": "2rem", "space-lg": "1.5rem", "margin": "1rem", "gutter-lg": "2rem" }, fontFamily: { "headline-sm": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "display-lg-mobile": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"] }, fontSize: { "headline-sm": ["18px", { lineHeight: "26px", fontWeight: "600" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "22px", fontWeight: "400" }], "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.015em", fontWeight: "700" }], "headline-lg-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.015em", fontWeight: "700" }], "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }], "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "600" }], "headline-md": ["22px", { lineHeight: "30px", letterSpacing: "-0.01em", fontWeight: "600" }], "label-lg": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }], "display-lg-mobile": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "26px", fontWeight: "400" }], "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+      background-color: #FAF8F5;
+    }
+    .history-card {
+      transition: all 0.3s cubic-bezier(0, 0, 0.2, 1);
+    }
+    .history-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
+    }
+  </style></head><body class="bg-[#FAF8F5] font-body-md text-on-surface flex flex-col min-h-screen antialiased"><header class="fixed top-0 inset-x-0 z-50 bg-[#FAF8F5]/90 backdrop-blur-xl shadow-[0_4px_20px_-2px_rgba(70,115,78,0.05)] pt-safe"><div class="h-20 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="SpamReaper Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHwtqz3DB7gDZg74OL5DcESF9id1COq6K2syPhDwZ8RzWtTaRctoYPo4yICZvWEzfY4pOehkiyyAhZ2e62-ZXqksDucwd544Z1eM4tJ0VDz2zWOX6ZwjSqYg4vhcTFa2rMTEkA0kkFkzGu4lRezsR6PhTPiFyjrLnzRL3N3T3GPaT8Y7VFJoMVEGe9svpitxHGYeaY0lhR1R-OxaG5m6T5qdDymXEp8V815oRONnmdGwqcJp564RFp"/><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">SpamReaper</span><span class="text-[10px] bg-primary-fixed text-on-primary-fixed font-label-sm px-1.5 py-0.5 rounded-full">History</span></div><span class="font-label-sm text-label-sm text-outline font-normal">Weed out the noise</span></div></div><div class="flex items-center gap-space-xs"><button class="w-11 h-11 flex items-center justify-center relative rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface"></span></button><div class="p-0.5 rounded-full ring-2 ring-primary-fixed/80"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhqu11P0Emri2r1oo1xCAnzFVjT6EYjUEw_IS2gKyK49u0WgPhVze6EurnEyZ4kydCzLznh1tLbRgka3Y3SnZbEEKIDVrZvkmq_HeW1wle_2j5w2pTe1GPpudqHIVpIF9o45MUg_8Em_6elgW4ygYW9SSYaBxpMOS2qQgozypl26C25zkXpHsplNlrrNFaptkTB5h2pPqysZOgRE2E9djfEQU9CTS4DtkXWxs1ItcVLXRn3X3-xHDS"/></div></div></div></header><main class="flex flex-col relative w-full px-gutter pt-20 pb-28 bg-[#FAF8F5]"><div class="flex flex-col w-full gap-space-md">
+<!-- Toast Notification -->
+<div class="fixed top-24 left-4 right-4 z-50 flex items-center justify-between p-space-md bg-inverse-surface text-inverse-on-surface rounded-2xl shadow-xl translate-y-[-150%] opacity-0 transition-all duration-300 pointer-events-none" id="restorationToast">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary-fixed text-[20px]">check_circle</span>
+<span class="font-body-sm text-body-sm" id="toastMessage">Email successfully restored to inbox</span>
+</div>
+<button class="text-inverse-on-surface/70 hover:text-inverse-on-surface" onclick="dismissToast()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Header Section: Sub-Header & Bulk Action -->
+<section class="flex flex-col gap-space-xs pt-1">
+<div class="flex items-start justify-between gap-2">
+<div class="flex flex-col">
+<h1 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span>History &amp; Recovery</span>
+</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mt-0.5 max-w-sm">
+Review recent triage actions. Items moved to trash remain recoverable for 30 days before permanent harvest.
+</p>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant hover:bg-surface-container-high active:scale-95 transition-all shrink-0 mt-1 border border-outline-variant/30 shadow-xs" onclick="clearHistoryModal()">
+<span class="material-symbols-outlined text-[16px] text-tertiary">mop</span>
+<span class="font-label-md text-label-md">Clear History</span>
+</button>
+</div>
+</section>
+<!-- Search & Filter Controls -->
+<section class="flex flex-col gap-space-sm">
+<!-- Pill Search Input -->
+<div class="relative flex items-center w-full">
+<span class="material-symbols-outlined absolute left-4 text-outline text-[20px] pointer-events-none">search</span>
+<input class="w-full h-12 pl-11 pr-10 rounded-full bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-container/40 transition-all border border-outline-variant/40" id="ledgerSearch" oninput="handleSearch(this.value)" placeholder="Search by sender, domain, or subject..." type="text"/>
+<button class="hidden absolute right-3 w-6 h-6 flex items-center justify-center rounded-full bg-surface-container text-outline hover:text-on-surface" id="clearSearchBtn" onclick="clearSearch()">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<!-- Filter Chips -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-nowrap">
+<button class="filter-chip px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm active:scale-95 transition-all flex items-center gap-1.5" onclick="setFilter('all', this)">
+<span>All</span>
+<span class="text-[10px] bg-primary-container px-1.5 py-0.2 rounded-full text-on-primary-container">28</span>
+</button>
+<button class="filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md shadow-sm active:scale-95 transition-all flex items-center gap-1.5 border border-outline-variant/30" onclick="setFilter('trashed', this)">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>Trashed</span>
+<span class="text-[10px] bg-tertiary-fixed text-on-tertiary-fixed-variant px-1.5 py-0.2 rounded-full">21</span>
+</button>
+<button class="filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md shadow-sm active:scale-95 transition-all flex items-center gap-1.5 border border-outline-variant/30" onclick="setFilter('kept', this)">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Kept</span>
+<span class="text-[10px] bg-primary-fixed text-on-primary-fixed px-1.5 py-0.2 rounded-full">7</span>
+</button>
+</div>
+</section>
+<!-- Timeline Ledger List: Floating Pebble Cards with 2px borders -->
+<section class="flex flex-col gap-space-md" id="ledgerList">
+<!-- Card 1: Trashed (Terracotta border) -->
+<article class="ledger-item history-card relative flex flex-col p-5 rounded-2xl bg-surface-container-lowest shadow-[0_4px_20px_-2px_rgba(70,115,78,0.05)] cursor-pointer border-2 border-[#E69B82]" data-category="trashed" data-search="apex crypto signals newsletter@apex-signals.io 500x whale alert">
+<div class="flex items-center justify-between gap-2 pb-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-[#FDE8E2] text-[#B8533B] flex items-center justify-center font-bold text-xs shrink-0">⚡</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Apex Crypto Signals</span>
+<span class="font-body-sm text-[11px] text-outline truncate">&lt;newsletter@apex-signals.io&gt;</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed/70 text-on-secondary-fixed-variant text-[11px] font-medium shrink-0">
+<span class="material-symbols-outlined text-[13px]">hourglass_top</span>
+<span>29 days left</span>
+</div>
+</div>
+<div class="mt-1 mb-3 flex flex-col gap-1">
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface font-semibold line-clamp-1">🚨 Instant 500× Whale Alert: Act within 24h</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Algorithmic breakout session. Join our VIP channel to harvest automated trading signals before cycle close...</p>
+</div>
+<div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] font-medium">
+<span class="material-symbols-outlined text-[13px]">delete_sweep</span>
+Trashed
+</span>
+<span class="text-[11px] text-outline">Today, 9:42 AM</span>
+</div>
+<button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container text-primary hover:bg-primary-fixed active:scale-95 transition-all font-label-md text-label-md font-semibold border border-primary/20" onclick="restoreItem(this, 'Apex Crypto Signals')">
+<span class="material-symbols-outlined text-[16px]">undo</span>
+<span>Restore to Inbox</span>
+</button>
+</div>
+</article>
+<!-- Card 2: Trashed (Sunlight Amber border) -->
+<article class="ledger-item history-card relative flex flex-col p-5 rounded-2xl bg-surface-container-lowest shadow-[0_4px_20px_-2px_rgba(70,115,78,0.05)] cursor-pointer border-2 border-[#FED977]" data-category="trashed" data-search="megaretail deals promotions@daily-fashion.com final clearance linen shirts">
+<div class="flex items-center justify-between gap-2 pb-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-xs shrink-0">🏷️</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">MegaRetail Deals</span>
+<span class="font-body-sm text-[11px] text-outline truncate">&lt;promotions@daily-fashion.com&gt;</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed/70 text-on-secondary-fixed-variant text-[11px] font-medium shrink-0">
+<span class="material-symbols-outlined text-[13px]">nest_clock_farsight_analog</span>
+<span>28 days left</span>
+</div>
+</div>
+<div class="mt-1 mb-3 flex flex-col gap-1">
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface font-semibold line-clamp-1">Final clearance! Up to 80% off linen shirts 🌿</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Shop warehouse markdown inventory before season end. Free standard parcel shipping on orders over $50...</p>
+</div>
+<div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] font-medium">
+<span class="material-symbols-outlined text-[13px]">campaign</span>
+Promotional blast
+</span>
+<span class="text-[11px] text-outline">Yesterday, 4:15 PM</span>
+</div>
+<button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container text-primary hover:bg-primary-fixed active:scale-95 transition-all font-label-md text-label-md font-semibold border border-primary/20" onclick="restoreItem(this, 'MegaRetail Deals')">
+<span class="material-symbols-outlined text-[16px]">undo</span>
+<span>Restore to Inbox</span>
+</button>
+</div>
+</article>
+<!-- Card 3: Kept Safe (Pastoral Sage Green border) -->
+<article class="ledger-item history-card relative flex flex-col p-5 rounded-2xl bg-surface-container-lowest shadow-[0_4px_20px_-2px_rgba(70,115,78,0.05)] cursor-pointer border-2 border-[#BCEFC3]" data-category="kept" data-search="acme cloud invoicing billing@acmecloud.io subscription receipt inv-4921">
+<div class="flex items-center justify-between gap-2 pb-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xs shrink-0">📄</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Acme Cloud Invoicing</span>
+<span class="font-body-sm text-[11px] text-outline truncate">&lt;billing@acmecloud.io&gt;</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-[11px] font-medium shrink-0">
+<span class="material-symbols-outlined text-[13px]">shield</span>
+<span>Safe in Inbox</span>
+</div>
+</div>
+<div class="mt-1 mb-3 flex flex-col gap-1">
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface font-semibold line-clamp-1">Receipt for monthly cloud subscription #INV-4921</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Your automated invoice has been processed successfully. Download PDF receipt and audit trail from portal...</p>
+</div>
+<div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary-fixed/60 text-primary text-[11px] font-medium">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+Kept Safe
+</span>
+<span class="text-[11px] text-outline">Yesterday, 11:30 AM</span>
+</div>
+<button class="flex items-center gap-1 px-3 py-1.5 rounded-full text-tertiary hover:bg-tertiary-fixed active:scale-95 transition-all font-label-md text-label-md" onclick="moveToTrash(this, 'Acme Cloud Invoicing')">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+<span>Move to Trash</span>
+</button>
+</div>
+</article>
+<!-- Card 4: Trashed (Amber Border) -->
+<article class="ledger-item history-card relative flex flex-col p-5 rounded-2xl bg-surface-container-lowest shadow-[0_4px_20px_-2px_rgba(70,115,78,0.05)] cursor-pointer border-2 border-[#FED977]" data-category="trashed" data-search="fasttrack shipping delivery@express-track99.biz package exception us-9912">
+<div class="flex items-center justify-between gap-2 pb-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-[#FDE8E2] text-[#B8533B] flex items-center justify-center font-bold text-xs shrink-0">📦</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">FastTrack Shipping</span>
+<span class="font-body-sm text-[11px] text-outline truncate">&lt;delivery@express-track99.biz&gt;</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-fixed/70 text-on-secondary-fixed-variant text-[11px] font-medium shrink-0">
+<span class="material-symbols-outlined text-[13px]">nest_clock_farsight_analog</span>
+<span>22 days left</span>
+</div>
+</div>
+<div class="mt-1 mb-3 flex flex-col gap-1">
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface font-semibold line-clamp-1">Notice: Package #US-9912 delivery exception</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Scheduled parcel could not be delivered due to unregistered address format. Verify recipient details promptly...</p>
+</div>
+<div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] font-medium">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+Unverified domain
+</span>
+<span class="text-[11px] text-outline">Oct 12, 2:10 PM</span>
+</div>
+<button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container text-primary hover:bg-primary-fixed active:scale-95 transition-all font-label-md text-label-md font-semibold border border-primary/20" onclick="restoreItem(this, 'FastTrack Shipping')">
+<span class="material-symbols-outlined text-[16px]">undo</span>
+<span>Restore to Inbox</span>
+</button>
+</div>
+</article>
+<!-- Card 5: Trashed (Urgent Expiring - Rust/Terracotta border) -->
+<article class="ledger-item history-card relative flex flex-col p-5 rounded-2xl bg-surface-container-lowest shadow-[0_4px_20px_-2px_rgba(70,115,78,0.05)] cursor-pointer border-2 border-[#E69B82]" data-category="trashed" data-search="daily lottery win claim@reward-portal-vip.net winner notification voucher prize">
+<div class="flex items-center justify-between gap-2 pb-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-[#FDE8E2] text-[#B8533B] flex items-center justify-center font-bold text-xs shrink-0">🎁</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Daily Lottery Win</span>
+<span class="font-body-sm text-[11px] text-outline truncate">&lt;claim@reward-portal-vip.net&gt;</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-tertiary text-on-tertiary text-[11px] font-semibold shrink-0 animate-pulse" style="background-color: #BA5336;">
+<span class="material-symbols-outlined text-[13px]">hourglass_top</span>
+<span>3 days left</span>
+</div>
+</div>
+<div class="mt-1 mb-3 flex flex-col gap-1">
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface font-semibold line-clamp-1">Winner notification: Claim your retail voucher prize</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">You were selected randomly as today's grand tier winner. Provide registration verification to receive voucher code...</p>
+</div>
+<div class="pt-2 border-t border-outline-variant/20 flex items-center justify-between gap-2">
+<div class="flex items-center gap-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-error-container text-on-error-container text-[11px] font-medium">
+<span class="material-symbols-outlined text-[13px]">timer</span>
+Purging soon
+</span>
+<span class="text-[11px] text-outline">Sep 21, 8:05 AM</span>
+</div>
+<button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container text-primary hover:bg-primary-fixed active:scale-95 transition-all font-label-md text-label-md font-semibold border border-primary/20" onclick="restoreItem(this, 'Daily Lottery Win')">
+<span class="material-symbols-outlined text-[16px]">undo</span>
+<span>Restore to Inbox</span>
+</button>
+</div>
+</article>
+</section>
+<!-- Empty State (Hidden initially) -->
+<div class="hidden flex-col items-center justify-center p-space-xl bg-surface-container-low rounded-2xl text-center gap-space-sm" id="ledgerEmptyState">
+<div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[32px]">filter_list_off</span>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">No matching records found</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
+Try adjusting your filter or search query to find previous sender decisions.
+</p>
+</div>
+<button class="mt-2 px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm" onclick="resetFilters()">
+Reset Filters
+</button>
+</div>
+<!-- Reassurance Pastoral Footer Banner -->
+<footer class="mt-4 mb-2 flex flex-col items-center text-center px-4">
+<div class="w-10 h-10 rounded-full bg-primary-fixed/60 flex items-center justify-center text-primary mb-2 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">sync_saved_locally</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary mb-1">Gmail 30-Day Trash Sync Active</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs leading-relaxed">
+Restoring an email immediately reverses the label change and routes it back into your primary inbox. SpamReaper never permanently deletes an email without your explicit confirmation.
+</p>
+<div class="flex items-center gap-1 text-[11px] font-label-sm text-outline mt-2.5">
+<span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+<span>Encrypted &amp; private inbox guardian</span>
+</div>
+</footer>
+</div>
+<script>
+  let activeFilter = 'all';
+
+  function setFilter(filterType, buttonEl) {
+    activeFilter = filterType;
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+      btn.className = 'filter-chip px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md shadow-sm active:scale-95 transition-all flex items-center gap-1.5 border border-outline-variant/30';
+    });
+    buttonEl.className = 'filter-chip px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm active:scale-95 transition-all flex items-center gap-1.5';
+    applyFilters();
+  }
+
+  function handleSearch(query) {
+    const clearBtn = document.getElementById('clearSearchBtn');
+    if (query && query.trim().length > 0) {
+      clearBtn.classList.remove('hidden');
+    } else {
+      clearBtn.classList.add('hidden');
+    }
+    applyFilters();
+  }
+
+  function clearSearch() {
+    const input = document.getElementById('ledgerSearch');
+    input.value = '';
+    document.getElementById('clearSearchBtn').classList.add('hidden');
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const query = document.getElementById('ledgerSearch').value.toLowerCase().trim();
+    const items = document.querySelectorAll('.ledger-item');
+    let visibleCount = 0;
+
+    items.forEach(item => {
+      const category = item.getAttribute('data-category');
+      const searchData = item.getAttribute('data-search').toLowerCase();
+
+      const matchesFilter = (activeFilter === 'all') || (activeFilter === category);
+      const matchesSearch = !query || searchData.includes(query);
+
+      if (matchesFilter && matchesSearch) {
+        item.style.display = 'flex';
+        visibleCount++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    const emptyState = document.getElementById('ledgerEmptyState');
+    if (visibleCount === 0) {
+      emptyState.classList.remove('hidden');
+      emptyState.classList.add('flex');
+    } else {
+      emptyState.classList.add('hidden');
+      emptyState.classList.remove('flex');
+    }
+  }
+
+  function resetFilters() {
+    clearSearch();
+    const firstFilter = document.querySelector('.filter-chip');
+    if (firstFilter) setFilter('all', firstFilter);
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('restorationToast');
+    const msgEl = document.getElementById('toastMessage');
+    msgEl.textContent = message;
+    toast.classList.remove('translate-y-[-150%]', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    setTimeout(() => {
+      dismissToast();
+    }, 3200);
+  }
+
+  function dismissToast() {
+    const toast = document.getElementById('restorationToast');
+    toast.classList.add('translate-y-[-150%]', 'opacity-0', 'pointer-events-none');
+    toast.classList.remove('translate-y-0', 'opacity-100');
+  }
+
+  function restoreItem(buttonEl, senderName) {
+    const card = buttonEl.closest('.ledger-item');
+    card.style.transform = 'scale(0.95)';
+    card.style.opacity = '0';
+    
+    setTimeout(() => {
+      card.remove();
+      showToast(`'${senderName}' safely restored to primary inbox 🌿`);
+      applyFilters();
+    }, 240);
+  }
+
+  function moveToTrash(buttonEl, senderName) {
+    const card = buttonEl.closest('.ledger-item');
+    card.style.transform = 'scale(0.95)';
+    card.style.opacity = '0';
+    
+    setTimeout(() => {
+      card.remove();
+      showToast(`'${senderName}' moved back to 30-day trash 🍂`);
+      applyFilters();
+    }, 240);
+  }
+
+  function clearHistoryModal() {
+    showToast('Items older than 30 days are automatically pruned from Gmail.');
+  }
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-[#FAF8F5]/90 backdrop-blur-xl shadow-[0_-8px_24px_-4px_rgba(70,115,78,0.06)]" data-active-classes="text-primary bg-primary-fixed/40 font-semibold"><div class="flex justify-around items-center h-20 px-space-sm"><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-14 rounded-2xl text-on-surface-variant hover:text-on-surface transition-all" data-path="review" href="#"><span class="material-symbols-outlined text-[24px]">shield_with_heart</span><span class="font-label-sm text-label-sm">Review</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-14 rounded-2xl text-on-surface-variant hover:text-on-surface transition-all" data-path="protected" href="#"><span class="material-symbols-outlined text-[24px]">verified_user</span><span class="font-label-sm text-label-sm">Protected</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-14 rounded-2xl transition-all text-primary bg-primary-fixed/50 font-semibold" data-path="history" href="#"><span class="material-symbols-outlined text-[24px]">history</span><span class="font-label-sm text-label-sm">History</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-14 rounded-2xl text-on-surface-variant hover:text-on-surface transition-all" data-path="settings" href="#"><span class="material-symbols-outlined text-[24px]">settings</span><span class="font-label-sm text-label-sm">Settings</span></a></div></nav></body></html>

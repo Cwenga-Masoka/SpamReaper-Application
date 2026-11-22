@@ -1,11 +1,12 @@
 from auth.gmail_auth import get_access_token
+from storage.action_history import ActionHistoryRepository
 from storage.flagged_emails import FlaggedMessageRepository
+from storage.history_constants import HistoryAction
 from typing import Optional
 import requests
-from storage.action_history import ActionHistoryRepository
-from storage.history_constants import HistoryAction
 
 GMAIL_API_BASE = 'https://gmail.googleapis.com/gmail/v1/users/me'
+
 
 def _move_to_gmail_trash(email_id: str):
     access_token = get_access_token()
@@ -22,13 +23,7 @@ def _record_deletion(history_repo: ActionHistoryRepository, flagged_message: Opt
     if flagged_message is None:
         return
 
-    history_repo.log_action(
-        flagged_message["sms_id"],
-        flagged_message["sender"],
-        flagged_message["subject"],
-        flagged_message["preview"],
-        HistoryAction.DELETED,
-    )
+    history_repo.log_flagged_message(flagged_message, HistoryAction.DELETED)
 
 
 def trash_email(
@@ -59,27 +54,29 @@ def trash_email(
         print(f"Error trashing email {email_id}: {e}")
         return False
 
-def untrash_email(email_id: str, db_repo: Optional[FlaggedMessageRepository] = None) -> bool:
+
+def untrash_email(email_id: str, history_repo: Optional[ActionHistoryRepository] = None) -> bool:
     """
-    Restores a single email from Gmail's Trash back to the inbox.
+    Restores a single email from Gmail's Trash back to the inbox and removes
+    its "deleted" entry from the action history.
     Only works if the email is still in Trash — Gmail permanently
     deletes trashed items after 30 days.
     """
-
-    if db_repo is None:
-            db_repo = FlaggedMessageRepository()
+    if history_repo is None:
+        history_repo = ActionHistoryRepository()
 
     try:
         access_token = get_access_token()
         headers = {'Authorization': f'Bearer {access_token}'}
 
-        # untrash is a POST request — same pattern as trash but opposite endpoint
         response = requests.post(
             f'{GMAIL_API_BASE}/messages/{email_id}/untrash',
             headers=headers
         )
 
         response.raise_for_status()
+        history_repo.delete_history_record(email_id)
+
         print(f"Successfully restored email with ID {email_id}")
         return True
 
@@ -94,6 +91,7 @@ def untrash_email(email_id: str, db_repo: Optional[FlaggedMessageRepository] = N
     except Exception as e:
         print(f"Error restoring email {email_id}: {e}")
         return False
+
 
 def trash_multiple_emails(
     email_id_list: list,
@@ -123,23 +121,23 @@ def trash_multiple_emails(
 
     return results
 
+
 def untrash_multiple_emails(
     email_id_list: list,
-    db_repo: Optional[FlaggedMessageRepository] = None,
     history_repo: Optional[ActionHistoryRepository] = None,
 ) -> dict:
     """
     Restores multiple emails from Trash at once.
     """
-    if db_repo is None:
-        db_repo = FlaggedMessageRepository()
+    if history_repo is None:
+        history_repo = ActionHistoryRepository()
 
     results = {
         "succeeded": [],
         "failed": []
     }
     for email_id in email_id_list:
-        if untrash_email(email_id, db_repo):
+        if untrash_email(email_id, history_repo):
             results["succeeded"].append(email_id)
         else:
             results["failed"].append(email_id)

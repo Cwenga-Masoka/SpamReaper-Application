@@ -21,8 +21,8 @@ gmail_token.json
 spamreaper.db
 
 # OAuth credentials — never commit these
-client_secret.json
-device_client_secret.json
+backend/device_client_secret.json
+backend/client_secret.json
 client_id.json
 
 # Editor / OS clutter

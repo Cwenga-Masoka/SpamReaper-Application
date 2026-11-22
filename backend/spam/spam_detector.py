@@ -1,21 +1,36 @@
 import re
+from typing import Final
+
 from settings.config_manager import get_setting
+
+SPAM_KEYWORDS_SETTING: Final = "spam_keywords"
+WORD_START: Final = r"(?<!\w)"
+WORD_END: Final = r"(?!\w)"
+
+
+def build_keyword_pattern(keywords: list[str]) -> re.Pattern | None:
+    """
+    Builds one pattern that matches any keyword as a whole word or phrase.
+    Returns None when there are no usable keywords.
+    """
+    cleaned_keywords = [keyword.strip() for keyword in keywords if keyword.strip()]
+    if not cleaned_keywords:
+        return None
+
+    alternatives = "|".join(re.escape(keyword) for keyword in cleaned_keywords)
+    return re.compile(f"{WORD_START}(?:{alternatives}){WORD_END}", re.IGNORECASE)
+
 
 def contains_spam_keywords(message_text: str) -> bool:
     """
-    Checks if the given text contains any spam keywords.
+    Checks if the given text contains any spam keyword as a whole word or phrase.
     Keywords are read from config fresh on every call so that
     changes made in Settings take effect immediately without
     requiring an app restart.
     """
-    keywords = get_setting("spam_keywords") or []
-    message_lower = message_text.lower()
-
-    for keyword in keywords:
-        if re.search(keyword, message_lower, re.IGNORECASE):
-            return True
-
-    return False
+    keywords = get_setting(SPAM_KEYWORDS_SETTING) or []
+    pattern = build_keyword_pattern(keywords)
+    return pattern is not None and pattern.search(message_text) is not None
 
 def is_suspicious_sender(sender: str) -> bool:
     """

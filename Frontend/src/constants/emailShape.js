@@ -5,6 +5,5 @@
  * @property {string} senderAddress
  * @property {string} subject
  * @property {string} preview
- * @property {'high'|'medium'|'low'} riskLevel
  * @property {number} daysLeft
  */

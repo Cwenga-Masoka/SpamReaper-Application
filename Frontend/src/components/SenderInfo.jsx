@@ -1,12 +1,12 @@
-import { RISK_BADGE_CLASS } from '../constants/risk'
+import { URGENCY_BADGE_CLASS } from '../constants/urgency'
 import { getInitial } from '../utils/text'
 
-function SenderInfo({ name, address, riskLevel }) {
+function SenderInfo({ name, address, urgency }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <div
         aria-hidden="true"
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl font-bold ${RISK_BADGE_CLASS[riskLevel]}`}
+        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl font-bold ${URGENCY_BADGE_CLASS[urgency]}`}
       >
         {getInitial(name)}
       </div>

@@ -39,11 +39,13 @@ class ActionHistoryRepository:
     def log_action(self, sms_id: str, sender: str, subject: str, preview: str, action: str):
         """
         Records an action taken on a flagged email into the history table.
+        An email has only one history entry: a new action replaces the old one.
         """
         conn = self._get_connection()
         cursor = conn.cursor()
         today = datetime.now().strftime("%Y-%m-%d")
 
+        cursor.execute("DELETE FROM action_history WHERE sms_id = ?", (sms_id,))
         cursor.execute("""
             INSERT INTO action_history (sms_id, sender, subject, preview, action, actioned_on)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -51,6 +53,16 @@ class ActionHistoryRepository:
 
         conn.commit()
         conn.close()
+
+    def log_flagged_message(self, flagged_message: dict, action: str):
+        """Records an action using the details stored on a flagged message."""
+        self.log_action(
+            flagged_message["sms_id"],
+            flagged_message["sender"],
+            flagged_message["subject"],
+            flagged_message["preview"],
+            action,
+        )
 
     def get_action_history(self) -> list:
         """

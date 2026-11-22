@@ -19,9 +19,9 @@
   --color-tertiary: #B8533B;
   --color-tertiary-fixed: #FDE8E2;
 
-  --color-risk-high: #E69B82;
-  --color-risk-medium: #F4D06F;
-  --color-risk-low: #89B592;
+  --color-urgency-urgent: #E69B82;
+  --color-urgency-soon: #F4D06F;
+  --color-urgency-later: #89B592;
 
   --color-inverse-surface: #322E2B;
   --color-inverse-on-surface: #F6F3EF;

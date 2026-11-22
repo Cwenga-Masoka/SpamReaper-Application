@@ -25,6 +25,7 @@ class Route(StrEnum):
     TRASH_ONE = API_PREFIX + "/trash/{email_id}"
     UNTRASH_BULK = API_PREFIX + "/untrash/bulk"
     UNTRASH_ONE = API_PREFIX + "/untrash/{email_id}"
+    KEEP_BULK = API_PREFIX + "/keep/bulk"
     KEEP = API_PREFIX + "/keep/{email_id}"
     HISTORY = API_PREFIX + "/history"
     HISTORY_ITEM = API_PREFIX + "/history/{sms_id}"

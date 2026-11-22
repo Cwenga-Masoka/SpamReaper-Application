@@ -1,7 +1,8 @@
 import { ALL_FILTER, SEARCHABLE_FIELDS } from '../constants/filters'
+import { getUrgency } from './urgency'
 
 function matchesFilter(email, activeFilter) {
-  return activeFilter === ALL_FILTER || email.riskLevel === activeFilter
+  return activeFilter === ALL_FILTER || getUrgency(email.daysLeft) === activeFilter
 }
 
 function matchesSearch(email, query) {
@@ -17,7 +18,10 @@ export function filterEmails(emails, activeFilter, searchText) {
 
 export function countEmailsByFilter(emails) {
   return emails.reduce(
-    (counts, { riskLevel }) => ({ ...counts, [riskLevel]: (counts[riskLevel] ?? 0) + 1 }),
+    (counts, { daysLeft }) => {
+      const urgency = getUrgency(daysLeft)
+      return { ...counts, [urgency]: (counts[urgency] ?? 0) + 1 }
+    },
     { [ALL_FILTER]: emails.length },
   )
 }

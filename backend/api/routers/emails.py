@@ -15,9 +15,9 @@ from gmail.email_reader import get_spam_emails
 from storage.flagged_emails import FlaggedMessageRepository
 from spam.retention import get_days_before_deletion
 from storage.action_history import ActionHistoryRepository
+from spam.email_keeper import keep_email, keep_multiple_emails
 
 router = APIRouter(tags=[Tag.EMAILS])
-
 
 @router.get(Route.FLAGGED, response_model=list[SpamEmailResponse])
 def get_flagged_messages(
@@ -74,6 +74,15 @@ def restore_single_email(email_id: str):
         raise bad_request(ErrorMessage.RESTORE_FAILED)
     return {"status": STATUS_SUCCESS, "email_id": email_id}
 
+@router.post(Route.KEEP_BULK)
+def mark_messages_to_keep(
+    payload: EmailIdsRequest,
+    db: FlaggedMessageRepository = Depends(get_db_repo),
+    history_repo: ActionHistoryRepository = Depends(get_history_repo),
+):
+    """Marks multiple emails as safe at once."""
+    result = keep_multiple_emails(payload.email_ids, db, history_repo)
+    return {"status": STATUS_SUCCESS, "result": result}
 
 @router.post(Route.KEEP)
 def mark_message_to_keep(email_id: str, db: FlaggedMessageRepository = Depends(get_db_repo)):

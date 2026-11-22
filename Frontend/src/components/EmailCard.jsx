@@ -7,14 +7,16 @@ import {
   SELECT_EMAIL_LABEL_PREFIX,
   TRASH_ACTION,
 } from '../constants/emailCard'
-import { RISK_BORDER_CLASS } from '../constants/risk'
+import { URGENCY_BORDER_CLASS } from '../constants/urgency'
+import { getUrgency } from '../utils/urgency'
 
 function EmailCard({ email, isSelected, onToggleSelect, onKeep, onTrash }) {
-  const { id, senderName, senderAddress, subject, preview, riskLevel, daysLeft } = email
+  const { id, senderName, senderAddress, subject, preview, daysLeft } = email
+  const urgency = getUrgency(daysLeft)
 
   return (
     <article
-      className={`flex flex-col gap-9 rounded-card border-4 bg-surface-container-lowest p-5 shadow-soft ${RISK_BORDER_CLASS[riskLevel]}`}
+      className={`flex flex-col gap-9 rounded-card border-4 bg-surface-container-lowest p-5 shadow-soft ${URGENCY_BORDER_CLASS[urgency]}`}
     >
       <div className="flex items-center gap-7">
         <input
@@ -27,7 +29,7 @@ function EmailCard({ email, isSelected, onToggleSelect, onKeep, onTrash }) {
         <SenderInfo 
           name={senderName} 
           address={senderAddress} 
-          riskLevel={riskLevel} 
+          urgency={urgency} 
         />
       </div>
 
@@ -38,7 +40,7 @@ function EmailCard({ email, isSelected, onToggleSelect, onKeep, onTrash }) {
         <p className="line-clamp-2 text-[16px] text-on-surface-variant">{preview}</p>
       </div>
 
-      <DaysLeftBadge daysLeft={daysLeft} riskLevel={riskLevel} />
+      <DaysLeftBadge daysLeft={daysLeft} urgency={urgency} />
 
       <div className="grid grid-cols-2 gap-4">
         <ActionButton {...KEEP_ACTION} onClick={() => onKeep(id)} />

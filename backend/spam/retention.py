@@ -1,16 +1,18 @@
 from typing import Final
 
-from settings.config_manager import get_default_config, get_setting
+from settings.config_manager import get_setting_or_default
 
 DAYS_BEFORE_DELETION_KEY: Final = "days_before_deletion"
+AUTO_DELETE_ENABLED_KEY: Final = "auto_delete_enabled"
 REMINDER_LEAD_DAYS: Final = 1
 
 
 def get_days_before_deletion() -> int:
-    saved_value = get_setting(DAYS_BEFORE_DELETION_KEY)
-    if saved_value is not None:
-        return saved_value
-    return get_default_config()[DAYS_BEFORE_DELETION_KEY]
+    return get_setting_or_default(DAYS_BEFORE_DELETION_KEY)
+
+
+def is_auto_delete_enabled() -> bool:
+    return get_setting_or_default(AUTO_DELETE_ENABLED_KEY)
 
 
 def calculate_days_left(days_old: int, days_before_deletion: int) -> int:

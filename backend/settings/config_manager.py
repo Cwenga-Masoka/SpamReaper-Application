@@ -40,6 +40,8 @@ def load_config() -> dict:
         # The user is warned and the defaults are sed instead of crashing
         print(f"Config file has syntax error: {e}. Using default settings.")
         return get_default_config()
+
+    
 def get_default_config() -> dict:
     """
     This resturns a hardcoded set of default settings.
@@ -74,6 +76,18 @@ def get_setting(key: str):
     config = load_config()
 
     return config.get(key, None)
+
+
+def get_setting_or_default(key: str):
+    """
+    Returns the saved value of a setting. If the key is not saved in
+    config.json, returns the built-in default for that key instead.
+    """
+    saved_value = get_setting(key)
+    if saved_value is not None:
+        return saved_value
+    return get_default_config()[key]
+
 
 def save_setting(key: str, value) -> bool:
     """

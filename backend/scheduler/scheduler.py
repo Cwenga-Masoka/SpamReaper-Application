@@ -1,15 +1,17 @@
 import threading
 import time
 from datetime import datetime
-from typing import Optional
+from typing import Final, Optional
 from auth.errors import NotLoggedInError
 from gmail.email_reader import get_spam_emails
 from storage.flagged_emails import FlaggedMessageRepository
 from gmail.email_deleter import trash_multiple_emails
 from notifications.notifier import send_reminder_notification
 from settings.config_manager import get_setting, save_setting
-from spam.retention import get_days_before_deletion, is_due_for_deletion, is_due_for_reminder
+from spam.retention import get_days_before_deletion, is_auto_delete_enabled, is_due_for_deletion, is_due_for_reminder
 from storage.action_history import ActionHistoryRepository
+
+AUTO_DELETE_OFF_MESSAGE: Final = "Auto-delete is turned off — skipping reminders and deletions."
 
 class SpamWorkflowService:
     """
@@ -51,7 +53,11 @@ class SpamWorkflowService:
             print(f"Scan failed: {str(e)}")
 
     def check_for_deletions(self):
-        """Sends reminders and trashes messages according to the retention rules."""
+        """Sends reminders and trashes messages according to the retention rules, unless auto-delete is off."""
+        if not is_auto_delete_enabled():
+            print(AUTO_DELETE_OFF_MESSAGE)
+            return
+
         days_before_deletion = get_days_before_deletion()
         messages = self.db_repo.get_all_flagged_messages()
 

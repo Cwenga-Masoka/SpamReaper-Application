@@ -61,16 +61,24 @@ def trash_single_email(
     return {"status": STATUS_SUCCESS, "email_id": email_id}
 
 @router.post(Route.UNTRASH_BULK)
-def restore_bulk_emails(payload: EmailIdsRequest):
-    """Restores multiple emails from Gmail trash at once."""
-    result = untrash_multiple_emails(payload.email_ids)
+def restore_bulk_emails(
+    payload: EmailIdsRequest,
+    db: FlaggedMessageRepository = Depends(get_db_repo),
+    history_repo: ActionHistoryRepository = Depends(get_history_repo),
+):
+    """Restores multiple emails from Gmail trash and marks them as kept."""
+    result = untrash_multiple_emails(payload.email_ids, db, history_repo)
     return {"status": STATUS_SUCCESS, "result": result}
 
 
 @router.post(Route.UNTRASH_ONE)
-def restore_single_email(email_id: str):
-    """Restores an email from Gmail trash back to the inbox."""
-    if not untrash_email(email_id):
+def restore_single_email(
+    email_id: str,
+    db: FlaggedMessageRepository = Depends(get_db_repo),
+    history_repo: ActionHistoryRepository = Depends(get_history_repo),
+):
+    """Restores an email from Gmail trash back to the inbox and marks it as kept."""
+    if not untrash_email(email_id, db, history_repo):
         raise bad_request(ErrorMessage.RESTORE_FAILED)
     return {"status": STATUS_SUCCESS, "email_id": email_id}
 
@@ -85,7 +93,10 @@ def mark_messages_to_keep(
     return {"status": STATUS_SUCCESS, "result": result}
 
 @router.post(Route.KEEP)
-def mark_message_to_keep(email_id: str, db: FlaggedMessageRepository = Depends(get_db_repo)):
+def mark_message_to_keep(
+    email_id: str,
+    db: FlaggedMessageRepository = Depends(get_db_repo),
+):
     """Marks an email as safe so SpamReaper never deletes it."""
     db.mark_keep(email_id)
     return {"status": STATUS_SUCCESS, "email_id": email_id}

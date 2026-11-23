@@ -1,5 +1,6 @@
 from auth.errors import NotLoggedInError
 from auth.gmail_auth import get_access_token
+from spam.email_keeper import keep_email
 from storage.action_history import ActionHistoryRepository
 from storage.flagged_emails import FlaggedMessageRepository
 from storage.history_constants import HistoryAction
@@ -26,6 +27,26 @@ def _record_deletion(history_repo: ActionHistoryRepository, flagged_message: Opt
 
     history_repo.log_flagged_message(flagged_message, HistoryAction.DELETED)
 
+def _keep_restored_email(
+    email_id: str,
+    db_repo: FlaggedMessageRepository,
+    history_repo: ActionHistoryRepository,
+):
+    """
+    Remembers a restored email as kept, so the next scan does not flag it again.
+    The details come from its "deleted" history entry, which keep_email replaces with "kept".
+    """
+    history_record = history_repo.get_history_record(email_id)
+    if history_record is None:
+        return
+
+    db_repo.flag_message(
+        sms_id=history_record["sms_id"],
+        sender=history_record["sender"],
+        preview=history_record["preview"],
+        subject=history_record["subject"],
+    )
+    keep_email(email_id, db_repo, history_repo)
 
 def trash_email(
     email_id: str,
@@ -59,13 +80,19 @@ def trash_email(
         return False
 
 
-def untrash_email(email_id: str, history_repo: Optional[ActionHistoryRepository] = None) -> bool:
+def untrash_email(
+    email_id: str,
+    db_repo: Optional[FlaggedMessageRepository] = None,
+    history_repo: Optional[ActionHistoryRepository] = None,
+) -> bool:
     """
-    Restores a single email from Gmail's Trash back to the inbox and removes
-    its "deleted" entry from the action history.
+    Restores a single email from Gmail's Trash back to the inbox and marks it
+    as kept, so the next scan does not flag it again.
     Only works if the email is still in Trash — Gmail permanently
     deletes trashed items after 30 days.
     """
+    if db_repo is None:
+        db_repo = FlaggedMessageRepository()
     if history_repo is None:
         history_repo = ActionHistoryRepository()
 
@@ -79,7 +106,7 @@ def untrash_email(email_id: str, history_repo: Optional[ActionHistoryRepository]
         )
 
         response.raise_for_status()
-        history_repo.delete_history_record(email_id)
+        _keep_restored_email(email_id, db_repo, history_repo)
 
         print(f"Successfully restored email with ID {email_id}")
         return True
@@ -131,11 +158,14 @@ def trash_multiple_emails(
 
 def untrash_multiple_emails(
     email_id_list: list,
+    db_repo: Optional[FlaggedMessageRepository] = None,
     history_repo: Optional[ActionHistoryRepository] = None,
 ) -> dict:
     """
     Restores multiple emails from Trash at once.
     """
+    if db_repo is None:
+        db_repo = FlaggedMessageRepository()
     if history_repo is None:
         history_repo = ActionHistoryRepository()
 
@@ -144,7 +174,7 @@ def untrash_multiple_emails(
         "failed": []
     }
     for email_id in email_id_list:
-        if untrash_email(email_id, history_repo):
+        if untrash_email(email_id, db_repo, history_repo):
             results["succeeded"].append(email_id)
         else:
             results["failed"].append(email_id)

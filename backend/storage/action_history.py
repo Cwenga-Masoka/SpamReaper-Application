@@ -97,6 +97,22 @@ class ActionHistoryRepository:
 
         return results
 
+    def get_history_record(self, sms_id: str) -> dict | None:
+        """
+        Returns the history record of one email, or None if it has none.
+        """
+        conn = self._get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT * FROM action_history
+            WHERE sms_id = ?
+        """, (sms_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+        return dict(row) if row else None
+
     def delete_history_record(self, sms_id: str):
         """
         Removes a record from action_history.

@@ -20,13 +20,19 @@ bin/
 gmail_token.json
 spamreaper.db
 
-# OAuth credentials — never commit these
-backend/device_client_secret.json
-backend/client_secret.json
-client_id.json
+# Secrets and personal data: never commit
+client_secret.json
+device_client_secret.json
+web_client_secret.json
+gmail_token.json
+*.db
+.env
 
 # Editor / OS clutter
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+
+node_modules/
+__pycache__/

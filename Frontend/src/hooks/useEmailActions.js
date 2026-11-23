@@ -2,19 +2,20 @@ import { useCallback } from 'react'
 import { TOAST_KIND } from '../constants/messages'
 import { keepEmail, keepEmails, trashEmail, trashEmails } from '../services/api'
 import { hasFailedItems } from '../utils/bulkResult'
+import { reportFailure } from '../utils/actionFailure'
 
-export function useEmailActions({ showToast, onActionDone }) {
+export function useEmailActions({ showToast, onActionDone, onNotLoggedIn }) {
   const runAction = useCallback(
     async (action, target, successKind) => {
       try {
         const response = await action(target)
         showToast(hasFailedItems(response) ? TOAST_KIND.FAILED : successKind)
         await onActionDone()
-      } catch {
-        showToast(TOAST_KIND.FAILED)
+      } catch (error) {
+        reportFailure(error, { showToast, onNotLoggedIn })
       }
     },
-    [showToast, onActionDone],
+    [showToast, onActionDone, onNotLoggedIn],
   )
 
   const keep = useCallback(

@@ -10,11 +10,14 @@ from api.constants import (
     CORS_ALLOWED_METHODS,
     CORS_ALLOWED_ORIGINS,
 )
-from api.error_handling import convert_unexpected_errors_to_500
+from api.error_handling import convert_not_logged_in_to_401, convert_unexpected_errors_to_500
+from auth.errors import NotLoggedInError
 from api.lifespan import lifespan
-from api.routers import app_settings, emails, history, root
+from api.routers import app_settings, emails, history, login, root
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION, lifespan=lifespan)
+
+app.add_exception_handler(NotLoggedInError, convert_not_logged_in_to_401)
 
 # Added BEFORE the CORS middleware, so it sits inside it. That way, even
 # error responses still get the CORS headers and the browser can read them.
@@ -31,4 +34,5 @@ app.add_middleware(
 app.include_router(root.router)
 app.include_router(emails.router)
 app.include_router(history.router)
+app.include_router(login.router)
 app.include_router(app_settings.router)

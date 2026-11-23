@@ -1,5 +1,6 @@
 from enum import StrEnum
 from typing import Final
+from auth.constants import CALLBACK_PATH
 from spam.retention import DAYS_BEFORE_DELETION_KEY
 
 APP_TITLE: Final = "SpamReaper API"
@@ -30,9 +31,13 @@ class Route(StrEnum):
     HISTORY = API_PREFIX + "/history"
     HISTORY_ITEM = API_PREFIX + "/history/{sms_id}"
     SETTINGS = API_PREFIX + "/settings"
+    AUTH_LOGIN = API_PREFIX + "/auth/login"
+    AUTH_ME = API_PREFIX + "/auth/me"
+    AUTH_CALLBACK = CALLBACK_PATH
 
 
 class ErrorMessage(StrEnum):
+    INVALID_LOGIN_STATE = "Login could not be verified. Please try connecting again."
     TRASH_FAILED = "Failed to trash email."
     RESTORE_FAILED = "Failed to restore email."
     SETTING_UPDATE_FAILED = "Failed to update setting '{key}'."
@@ -51,3 +56,4 @@ class Tag(StrEnum):
     EMAILS = "emails"
     HISTORY = "history"
     SETTINGS = "settings"
+    AUTH = "auth"

@@ -47,5 +47,5 @@
     "auto_delete_enabled": true,
     "notification_enabled": true,
     "database_name": "spamreaper.db",
-    "last_scan_at": 1785827354.5697222
+    "last_scan_at": 1795384180.218687
 }

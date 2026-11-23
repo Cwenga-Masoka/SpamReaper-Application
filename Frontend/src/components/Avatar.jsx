@@ -10,6 +10,7 @@ function Avatar({ name, imageUrl }) {
           src={imageUrl}
           alt={`${name}'s profile`}
           className="h-8 w-8 rounded-full object-cover"
+          referrerPolicy="no-referrer"
         />
       ) : (
         <div

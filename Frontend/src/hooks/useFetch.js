@@ -3,14 +3,14 @@ import { useCallback, useEffect, useState } from 'react'
 export function useFetch(fetcher, initialData) {
   const [data, setData] = useState(initialData)
   const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
+  const [error, setError] = useState(null)
 
   const load = useCallback(async () => {
     try {
       setData(await fetcher())
-      setHasError(false)
-    } catch {
-      setHasError(true)
+      setError(null)
+    } catch (caughtError) {
+      setError(caughtError)
     } finally {
       setIsLoading(false)
     }
@@ -20,5 +20,5 @@ export function useFetch(fetcher, initialData) {
     load()
   }, [load])
 
-  return { data, isLoading, hasError, reload: load }
+  return { data, isLoading, error, hasError: error !== null, reload: load }
 }

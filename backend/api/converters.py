@@ -2,9 +2,11 @@ from email.errors import HeaderParseError
 from email.header import decode_header, make_header
 from email.utils import parseaddr
 
-from api.schemas import SpamEmailResponse
+from api.schemas import CurrentUserResponse, SpamEmailResponse
+from auth.constants import PROFILE_EMAIL_KEY, PROFILE_NAME_KEY, PROFILE_PICTURE_KEY
 from spam.retention import calculate_days_left
 
+NO_AVATAR_URL = ""
 
 def _decode_header_text(text: str) -> str:
     try:
@@ -28,4 +30,12 @@ def to_spam_email_response(message: dict, days_before_deletion: int) -> SpamEmai
         subject=_decode_header_text(message["subject"] or ""),
         preview=message["preview"] or "",
         days_left=calculate_days_left(message["days_old"], days_before_deletion),
+    )
+
+def to_current_user_response(profile: dict) -> CurrentUserResponse:
+    email = profile[PROFILE_EMAIL_KEY]
+    return CurrentUserResponse(
+        name=profile.get(PROFILE_NAME_KEY) or email,
+        avatar_url=profile.get(PROFILE_PICTURE_KEY, NO_AVATAR_URL),
+        email=email,
     )

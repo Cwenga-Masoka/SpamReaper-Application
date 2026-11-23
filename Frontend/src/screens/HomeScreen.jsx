@@ -7,7 +7,6 @@ import ScanButton from '../components/ScanButton'
 import SearchBar from '../components/SearchBar'
 import Toast from '../components/Toast'
 import { NO_EMAILS } from '../constants/inbox'
-import { TEMPORARY_USER } from '../constants/user'
 import { useEmailActions } from '../hooks/useEmailActions'
 import { useFetch } from '../hooks/useFetch'
 import { useInboxFilters } from '../hooks/useInboxFilters'
@@ -19,7 +18,7 @@ import { fetchFlaggedEmails } from '../services/api'
 const PAGE_CLASSES =
   'flex min-h-screen flex-col gap-4 bg-surface p-4 pt-24 font-sans text-on-surface'
 
-function HomeScreen() {
+  function HomeScreen({ user, onNotLoggedIn }) {
   const { data: emails, isLoading, hasError, reload } = useFetch(
     fetchFlaggedEmails,
     NO_EMAILS,
@@ -44,16 +43,17 @@ function HomeScreen() {
   const { keep, trash, keepMany, trashMany } = useEmailActions({
     showToast,
     onActionDone: reload,
+    onNotLoggedIn,
   })
-  const { scan, isScanning } = useScan({ showToast, onScanDone: reload })
+  const { scan, isScanning } = useScan({ showToast, onScanDone: reload, onNotLoggedIn })
 
   const hasVisibleEmails = visibleEmails.length > 0
 
   return (
     <div className={PAGE_CLASSES}>
-      <Header userName={TEMPORARY_USER.name} avatarUrl={TEMPORARY_USER.avatarUrl} />
+      <Header userName={user.name} avatarUrl={user.avatarUrl} />
       <Greeting
-        userName={TEMPORARY_USER.name}
+        userName={user.name}
         pendingCount={emails.length}
         action={<ScanButton onScan={scan} isScanning={isScanning} />}
       />

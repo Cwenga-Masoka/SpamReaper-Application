@@ -2,6 +2,7 @@ import threading
 import time
 from datetime import datetime
 from typing import Optional
+from auth.errors import NotLoggedInError
 from gmail.email_reader import get_spam_emails
 from storage.flagged_emails import FlaggedMessageRepository
 from gmail.email_deleter import trash_multiple_emails
@@ -85,7 +86,10 @@ def scheduler_loop():
 
     while True:
         workflow.run_daily_scan()
-        workflow.check_for_deletions()
+        try:
+            workflow.check_for_deletions()
+        except NotLoggedInError:
+            print("Skipping deletions: not logged in to Gmail.")
 
         print("Scheduler sleeping for 24 hours...")
         hours = get_setting("scan_interval_hours") or 24

@@ -30,3 +30,8 @@ class SpamEmailResponse(CamelCaseResponse):
     subject: str
     preview: str
     days_left: int
+
+class CurrentUserResponse(CamelCaseResponse):
+    name: str
+    avatar_url: str
+    email: str

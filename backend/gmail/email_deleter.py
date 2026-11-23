@@ -1,3 +1,4 @@
+from auth.errors import NotLoggedInError
 from auth.gmail_auth import get_access_token
 from storage.action_history import ActionHistoryRepository
 from storage.flagged_emails import FlaggedMessageRepository
@@ -50,6 +51,9 @@ def trash_email(
         print(f"Successfully trashed email with ID {email_id}")
         return True
 
+    except NotLoggedInError:
+        raise
+
     except Exception as e:
         print(f"Error trashing email {email_id}: {e}")
         return False
@@ -79,6 +83,9 @@ def untrash_email(email_id: str, history_repo: Optional[ActionHistoryRepository]
 
         print(f"Successfully restored email with ID {email_id}")
         return True
+
+    except NotLoggedInError:
+        raise
 
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 404:

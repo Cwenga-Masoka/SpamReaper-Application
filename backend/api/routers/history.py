@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 
 from api.constants import HISTORY_CLEARED_MESSAGE, STATUS_SUCCESS, Route, Tag
-from api.dependencies import get_history_repo
+from api.dependencies import LOGIN_REQUIRED, get_history_repo
 from storage.action_history import ActionHistoryRepository
 
-router = APIRouter(tags=[Tag.HISTORY])
+router = APIRouter(tags=[Tag.HISTORY], dependencies=LOGIN_REQUIRED)
 
 
 @router.get(Route.HISTORY, response_model=list[dict])

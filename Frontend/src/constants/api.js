@@ -20,6 +20,8 @@ export const HTTP_METHOD = Object.freeze({
   POST: 'POST',
 })
 
+export const FETCH_CREDENTIALS = 'include'
+
 export const JSON_HEADERS = Object.freeze({
   'Content-Type': 'application/json',
 })

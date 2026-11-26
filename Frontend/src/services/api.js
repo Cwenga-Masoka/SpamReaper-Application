@@ -6,11 +6,12 @@ import {
   BULK_IDS_KEY,
   HTTP_METHOD,
   JSON_HEADERS,
-  HTTP_STATUS
+  HTTP_STATUS,
+  FETCH_CREDENTIALS
 } from '../constants/api'
 
 async function request(path, method = HTTP_METHOD.GET, body) {
-  const options = { method }
+  const options = { method, credentials: FETCH_CREDENTIALS }
 
   if (body !== undefined) {
     options.headers = JSON_HEADERS

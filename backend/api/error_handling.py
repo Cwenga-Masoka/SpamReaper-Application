@@ -31,3 +31,6 @@ async def convert_not_logged_in_to_401(request: Request, error: NotLoggedInError
 
 def bad_request(detail: str) -> HTTPException:
     return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+def forbidden(detail: str) -> HTTPException:
+    return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=detail)

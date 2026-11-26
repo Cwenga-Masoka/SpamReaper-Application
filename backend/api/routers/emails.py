@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from api.constants import STATUS_SUCCESS, ErrorMessage, Route, Tag
 from api.converters import to_spam_email_response
-from api.dependencies import get_db_repo, get_history_repo
+from api.dependencies import LOGIN_REQUIRED, get_db_repo, get_history_repo
 from api.error_handling import bad_request
 from api.schemas import EmailIdsRequest, SpamEmailResponse
 from gmail.email_deleter import (
@@ -17,7 +17,7 @@ from spam.retention import get_days_before_deletion
 from storage.action_history import ActionHistoryRepository
 from spam.email_keeper import keep_email, keep_multiple_emails
 
-router = APIRouter(tags=[Tag.EMAILS])
+router = APIRouter(tags=[Tag.EMAILS], dependencies=LOGIN_REQUIRED)
 
 @router.get(Route.FLAGGED, response_model=list[SpamEmailResponse])
 def get_flagged_messages(

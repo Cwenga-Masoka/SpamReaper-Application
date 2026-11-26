@@ -3,9 +3,10 @@ from fastapi import APIRouter
 from api.constants import STATUS_SUCCESS, ErrorMessage, Route, Tag
 from api.error_handling import bad_request
 from api.schemas import SettingUpdateRequest
+from api.dependencies import LOGIN_REQUIRED
 from settings.config_manager import load_config, save_setting
 
-router = APIRouter(tags=[Tag.SETTINGS])
+router = APIRouter(tags=[Tag.SETTINGS], dependencies=LOGIN_REQUIRED)
 
 
 @router.get(Route.SETTINGS)

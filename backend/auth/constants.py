@@ -31,3 +31,13 @@ USERINFO_URL: Final = "https://openidconnect.googleapis.com/v1/userinfo"
 PROFILE_NAME_KEY: Final = "name"
 PROFILE_PICTURE_KEY: Final = "picture"
 PROFILE_EMAIL_KEY: Final = "email"
+
+PROFILE_EMAIL_VERIFIED_KEY: Final = "email_verified"
+
+SESSION_COOKIE_NAME: Final = "spamreaper_session"
+SESSION_EMAIL_KEY: Final = "owner_email"
+SESSION_MAX_AGE_DAYS: Final = 7
+SECONDS_PER_DAY: Final = 24 * 60 * 60
+SESSION_MAX_AGE_SECONDS: Final = SESSION_MAX_AGE_DAYS * SECONDS_PER_DAY
+SESSION_SAME_SITE: Final = "lax"
+SESSION_HTTPS_ONLY: Final = False  # set to True when the app goes online with HTTPS

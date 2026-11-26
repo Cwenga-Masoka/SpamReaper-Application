@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
 from api.constants import (
     APP_TITLE,
@@ -11,9 +12,16 @@ from api.constants import (
     CORS_ALLOWED_ORIGINS,
 )
 from api.error_handling import convert_not_logged_in_to_401, convert_unexpected_errors_to_500
-from auth.errors import NotLoggedInError
 from api.lifespan import lifespan
 from api.routers import app_settings, emails, history, login, root
+from auth.constants import (
+    SESSION_COOKIE_NAME,
+    SESSION_HTTPS_ONLY,
+    SESSION_MAX_AGE_SECONDS,
+    SESSION_SAME_SITE,
+)
+from auth.errors import NotLoggedInError
+from auth.session_settings import get_session_settings
 
 app = FastAPI(title=APP_TITLE, version=APP_VERSION, lifespan=lifespan)
 
@@ -22,6 +30,15 @@ app.add_exception_handler(NotLoggedInError, convert_not_logged_in_to_401)
 # Added BEFORE the CORS middleware, so it sits inside it. That way, even
 # error responses still get the CORS headers and the browser can read them.
 app.add_middleware(BaseHTTPMiddleware, dispatch=convert_unexpected_errors_to_500)
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=get_session_settings().secret_key,
+    session_cookie=SESSION_COOKIE_NAME,
+    max_age=SESSION_MAX_AGE_SECONDS,
+    same_site=SESSION_SAME_SITE,
+    https_only=SESSION_HTTPS_ONLY,
+)
 
 app.add_middleware(
     CORSMiddleware,

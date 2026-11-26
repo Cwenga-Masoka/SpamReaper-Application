@@ -1,6 +1,6 @@
 from enum import StrEnum
 from typing import Final
-from auth.constants import CALLBACK_PATH
+from auth.constants import CALLBACK_PATH, FRONTEND_BASE_URL
 from spam.retention import DAYS_BEFORE_DELETION_KEY
 
 APP_TITLE: Final = "SpamReaper API"
@@ -9,10 +9,9 @@ WELCOME_MESSAGE: Final = "Welcome to SpamReaper API — Backend is running secur
 HISTORY_CLEARED_MESSAGE: Final = "History cleared."
 STATUS_SUCCESS: Final = "success"
 
-ALLOW_EVERYTHING: Final = ("*",)
-CORS_ALLOWED_ORIGINS: Final = ALLOW_EVERYTHING
-CORS_ALLOWED_METHODS: Final = ALLOW_EVERYTHING
-CORS_ALLOWED_HEADERS: Final = ALLOW_EVERYTHING
+CORS_ALLOWED_ORIGINS: Final = (FRONTEND_BASE_URL,)
+CORS_ALLOWED_METHODS: Final = ("GET", "POST", "DELETE")
+CORS_ALLOWED_HEADERS: Final = ("Content-Type",)
 CORS_ALLOW_CREDENTIALS: Final = True
 
 API_PREFIX: Final = "/api"
@@ -33,6 +32,7 @@ class Route(StrEnum):
     SETTINGS = API_PREFIX + "/settings"
     AUTH_LOGIN = API_PREFIX + "/auth/login"
     AUTH_ME = API_PREFIX + "/auth/me"
+    AUTH_LOGOUT = API_PREFIX + "/auth/logout"
     AUTH_CALLBACK = CALLBACK_PATH
 
 
@@ -40,6 +40,7 @@ class ErrorMessage(StrEnum):
     INVALID_LOGIN_STATE = "Login could not be verified. Please try connecting again."
     TRASH_FAILED = "Failed to trash email."
     RESTORE_FAILED = "Failed to restore email."
+    KEEP_FAILED = "Failed to keep email."
     SETTING_UPDATE_FAILED = "Failed to update setting '{key}'."
     INTERNAL_ERROR = "Something went wrong on the server."
 

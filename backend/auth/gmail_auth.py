@@ -59,16 +59,15 @@ def _request_tokens(payload: dict) -> dict:
     return response.json()
 
 
-def complete_login(auth_code: str) -> None:
-    """Trades the one-time code from Google for tokens and saves them."""
-    token_data = _request_tokens(
+def exchange_code_for_tokens(auth_code: str) -> dict:
+    """Trades the one-time code from Google for tokens. Does not save them."""
+    return _request_tokens(
         {
             "code": auth_code,
             "grant_type": "authorization_code",
             "redirect_uri": REDIRECT_URI,
         }
     )
-    save_token(token_data)
 
 
 def _refresh_token_data(token_data: dict) -> dict:
